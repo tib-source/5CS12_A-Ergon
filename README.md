@@ -1,1 +1,1 @@
-# 5CS12_A
+# 5CS12_A - Ergon: An Equipment Management System
