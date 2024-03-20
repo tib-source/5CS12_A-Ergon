@@ -1,0 +1,21 @@
+body{ 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth__split{ 
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50vw;
+    height: 100vh;
+    background-color: #2e00b8;
+    z-index: -99;
+}
+
+
+.auth{ 
+    border: 1px solid black;
+    padding: 3em;
+}

@@ -10,7 +10,8 @@ frontend_patterns = [
 
 
 urlpatterns=[
-  path('', include(frontend_patterns))
+  path('', include(frontend_patterns)),
+  path('', include("django.contrib.auth.urls"))
 ]
 
 
