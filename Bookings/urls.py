@@ -1,7 +1,17 @@
-from django.urls import path
+from django.urls import include, path
 
-from . import views
+from Bookings.views import FrontEnd
+
+frontend_patterns = [ 
+
+    path('',FrontEnd.getLandingPage)
+          
+]
+
 
 urlpatterns=[
-  path('',views.index)
+  path('', include(frontend_patterns))
 ]
+
+
+
