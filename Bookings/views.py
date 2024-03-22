@@ -7,5 +7,5 @@ class FrontEnd:
     def getLandingPage(request): 
         return render(request, 'Bookings/landing.html')
     
-
+    
     

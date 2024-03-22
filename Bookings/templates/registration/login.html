@@ -2,7 +2,33 @@
 
 {% block content %}
 
+<form method="post" action="{% url 'login' %}"class="auth">
+    <h1>Login</h1>
+    <div class="input__container">
+        <div class="input__label">
+            <p>{{ form.username.label_tag}}</p>
+        </div>
+        <input class="input__field" type="text" name="username" autofocus="" autocapitalize="none" autocomplete="username" maxlength="150" required="" id="id_username">
 
+    </div>
+    
+    
+    <div class="input__container">
+        <div class="input__label">
+            <p>{{ form.password.label_tag}}</p>
+        </div>
+        <input  class="input__field" type="password" name="password" autocomplete="current-password" required="" id="id_password">
+        {% if form.errors %}
+            <div class="input__error">
+                <p>Error Here</p>
+            </div>
+        {% endif%}
+    </div>
+    
 
+    <button class="styled__button" type="submit"> Login </button>
+    
+
+</form>
 
 {% endblock content %}

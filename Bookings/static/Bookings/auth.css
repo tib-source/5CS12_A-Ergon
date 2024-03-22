@@ -1,21 +1,63 @@
-body{ 
+body {
     display: flex;
     justify-content: center;
     align-items: center;
+    height: 100vh;
 }
 
-.auth__split{ 
+.auth__split {
     position: absolute;
     top: 0;
     left: 0;
     width: 50vw;
     height: 100vh;
-    background-color: #2e00b8;
+    background-color: var(--primary-bg);
     z-index: -99;
 }
 
 
-.auth{ 
-    border: 1px solid black;
-    padding: 3em;
+.auth {
+    border: 1px solid var(--gray-light);
+    background-color: var(--white);
+    border-radius: 1rem;
+    padding: 5rem 3em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    overflow: hidden;
+
+    h1 {
+        text-align: center;
+        text-transform: capitalize;
+
+    }
+
+}
+
+
+
+.input__container {
+    display: grid;
+    gap: 0.5rem;
+
+    input{ 
+        font-size: 1rem;
+    }
+
+    .input__label {
+        opacity: 0.7;
+    }
+
+
+    .input__field {
+        min-width: 250px;
+        height: 3rem;
+        padding: 0.5rem;
+        outline: none;
+        border: 1px solid var(--gray-light);
+        border-radius: .25rem;
+    }
+
+
+
 }

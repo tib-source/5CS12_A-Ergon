@@ -75,16 +75,7 @@ class Staff(User):
     class Meta:
         verbose_name = "Staff"
         verbose_name_plural = "Staffs"
-        
-        
-        
-class Booking(models.Model):
-    returnDate = models.DateField()
-    approvalStatus = models.BooleanField()
-    returnStatus = models.BooleanField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    admin = models.ForeignKey(Admin, on_delete = models.CASCADE, related_name="approved_by")
-    
+
     
 class Equipment(models.Model): 
     
@@ -112,3 +103,11 @@ class Equipment(models.Model):
     quantity = models.IntegerField()
     last_audit = models.DateField()
     
+    
+class Booking(models.Model):
+    returnDate = models.DateField()
+    approvalStatus = models.BooleanField()
+    returnStatus = models.BooleanField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    admin = models.ForeignKey(Admin, on_delete = models.CASCADE, related_name="approved_by")
+    equipment = models.OneToOneField(Equipment, on_delete = models.CASCADE)
