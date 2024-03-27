@@ -38,12 +38,12 @@ body{
     text-align: center;
     margin-top: -50px;
 }
+
 .landing__title{ 
     font-weight: 800;
     font-size: 20em;
     text-shadow: 0 0 1em var(--bright);
     letter-spacing: 10px;
-
 }
 
 .landing__text{ 
@@ -51,7 +51,6 @@ body{
     font-weight: 500;
     padding-bottom: .5em;
 }
-
 
 .styled__button{ 
     text-decoration: none;
@@ -62,6 +61,7 @@ body{
     padding: 0.5rem 1rem;
     transition: 100ms;
 }
+
 .styled__button:hover{ 
     background-color: var(--button);
 

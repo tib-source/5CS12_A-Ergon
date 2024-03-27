@@ -105,9 +105,11 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
+# AUTHENTICATION REDIRECT 
+# Once users are logged in, they will be redirected to /dashboard 
+# Once users log out, they will be redirected to the home page
 LOGIN_REDIRECT_URL = '/dashboard'
-
+LOGOUT_REDIRECT_URL = "/"  # new
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/

@@ -1,8 +1,12 @@
+{%extends 'Bookings/base_main.html'%}
+{% block content %}
 <h1> YOU HAVE BEEN AUTHENTICATED </h1>
-
+{{user.first_name}}
 
 <form method="post" action="{% url 'logout' %}"class="auth" >
     {% csrf_token %}
 
     <button> Logout </button> 
 </form>
+
+{%endblock content %}
