@@ -58,6 +58,8 @@ body {
         border-radius: .25rem;
     }
 
-
+    .input__error{
+        color:red;
+    }
 
 }
