@@ -1,0 +1,34 @@
+@import url("https://fonts.googleapis.com/css2?family=Saira:ital,wght@0,100..900;1,100..900&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+* {
+  padding: 0px;
+  margin: 0px;
+  box-sizing: border-box;
+  font-family: "Montserrat", "Saira", sans-serif;
+}
+
+:root {
+  --primary-bg: #2e2e48;
+  --bright: #794bff;
+  --gray: #666666;
+  --gray-light: #66666680;
+  --button: #373771;
+  --error: #883d3d;
+  --white: #ffffff;
+}
+
+
+.styled__button{ 
+    text-decoration: none;
+    color: white;
+    background-color: var(--bright);
+    border: 1px solid var(--bright);
+    font-size: 1.15em;
+    padding: 0.5rem 1rem;
+    transition: 100ms;
+}
+.styled__button:hover{ 
+    background-color: var(--button);
+
+}

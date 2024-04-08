@@ -33,7 +33,7 @@ class Student(User):
     ("COMM301", "BA in Communication Studies"),
     ("SOC101", "BA in Sociology")
 ]
-    profile_pics = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    profile_pic = models.ImageField(default='default.jpg', upload_to='profile_pics')
     current_course = models.CharField(max_length = 10, choices=course_choices)   
     student_id = models.CharField(max_length=10, unique=True )
     class Meta:
@@ -68,23 +68,14 @@ class Staff(User):
     ]
     
 
-    profile_pics = models.ImageField(default='default.jpg', upload_to='profile_pics')
+    profile_pic = models.ImageField(default='default.jpg', upload_to='profile_pics')
     department = models.CharField(max_length = 6, choices=department_choices)   
     staff_id = models.CharField(max_length=10, unique=True )    
     
     class Meta:
         verbose_name = "Staff"
         verbose_name_plural = "Staffs"
-        
-        
-        
-class Booking(models.Model):
-    returnDate = models.DateField()
-    approvalStatus = models.BooleanField()
-    returnStatus = models.BooleanField()
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    admin = models.ForeignKey(Admin, on_delete = models.CASCADE, related_name="approved_by")
-    
+
     
 class Equipment(models.Model): 
     
@@ -112,3 +103,11 @@ class Equipment(models.Model):
     quantity = models.IntegerField()
     last_audit = models.DateField()
     
+    
+class Booking(models.Model):
+    returnDate = models.DateField()
+    approvalStatus = models.BooleanField()
+    returnStatus = models.BooleanField()
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    admin = models.ForeignKey(Admin, on_delete = models.CASCADE, related_name="approved_by")
+    equipment = models.ForeignKey(Equipment, on_delete = models.CASCADE)

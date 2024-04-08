@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Ergon</title>
+    {% load static%}
+    <link rel="stylesheet" href="{% static 'Bookings/root.css'%}">
+    <link rel="stylesheet" href="{% static 'Bookings/navigation.css'%}">
+</head>
+<body>
+    <script>
+        // Use this to style buttons according to what page they are on
+        console.log(window.location)
+    </script>
+    <div class="navigation">
+        {% if student.profile_pic %}
+        <img src="{{ student.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
+        
+        {{student.get_full_name}}
+        
+        {% else %}
+
+        <img src="/media/default.jpg" class="navigation__pic" alt="Profile Picture">
+
+        {% endif %}
+        <div class="navigation__pages">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/bookings">Bookings</a>     
+            <a href="/notifications">Notifications</a>     
+            <a href="/profile">Account</a>    
+        </div>
+        <form method="post" action="{% url 'logout' %}"class="navigation__logout" >
+            {% csrf_token %}
+            <button> Logout </button> 
+        </form>
+        
+    </div>
+    <div class="contaier">
+        {%block content %}
+
+        {%endblock content %}
+    </div>
+</body>
+</html>
