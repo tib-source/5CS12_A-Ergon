@@ -17,7 +17,13 @@
     <div class="navigation">
         {% if student.profile_pic %}
         <img src="{{ student.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
+        
         {{student.get_full_name}}
+        
+        {% else %}
+
+        <img src="/media/default.jpg" class="navigation__pic" alt="Profile Picture">
+
         {% endif %}
         <div class="navigation__pages">
             <a href="/dashboard">Dashboard</a>
