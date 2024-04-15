@@ -79,29 +79,23 @@ class Staff(User):
     
 class Equipment(models.Model): 
     
-    type_choices= [
-    ("PC", "PC/Laptop"),
-    ("VRH", "VR Headset"),
-    ("CS", "Camera/Sensor"),
-    ("PP", "PC Peripherals"),
-    ("Furn", "Furniture"),
-    ("Trip", "Tripod"),
-    ("Oth", "Other"),
-    ("VRC", "VR Controller"),
-    ("PT", "Phones/Tablets")
-]
-    status_choices = [
+    type_choices= [('PC', 'PC/Laptop'), ('VRH', 'VR Headset'), ('CS', 'Camera/Sensors'), ('PP', 'PC Peripherals'), ('Furn', 'Furniture'), ('Trip', 'Tripod'), ('Oth', 'Other'), ('VRC', 'VR Controller'), ('PT', 'Phones/Tablets'), ('PCBL', 'Power/Cable')]
+
+    status_choices = (
         ("Pend", "Pending"),
         ("Avail", "Available"),
-        ("Decom", "Decommissioned"),
-        ("Unavail", "Unavailable")
-    ]
+        ("Decom", "Decommisioned"),
+        ("Unavail", "Unavailable"),
+        ("Loan", "On Loan"),
+        ("Repair", "Repairing")
+    )
     name = models.CharField(max_length = 100)
     type = models.CharField(max_length = 25, choices = type_choices )
     location = models.CharField(max_length = 50)
     status = models.CharField(max_length = 15, choices = status_choices)
     quantity = models.IntegerField()
     last_audit = models.DateField()
+    comment =  models.TextField()
     
     
 class Booking(models.Model):
