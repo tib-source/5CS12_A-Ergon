@@ -1,34 +1,60 @@
-{%extends 'Bookings/base_main.html'%}
-{% block content %}
+{%extends 'Bookings/base_main.html'%} {% block content %}
+
+{{equipment|json_script:"data"}}
+
+<script defer>
+    let tableData =
+        JSON.parse(JSON.parse(document.getElementById("data").textContent))
+
+    let tableContent;
+
+    const createRow = (obj) => {
+        const row = document.createElement("tr");
+        const objKeys = ['id', 'name','quantity', 'type', 'location', 'status', 'comment']
+        objKeys.map((key) => {
+            populateRow(row, obj[key], key);
+        });
+        return row;
+    };
+    const populateRow = (row, item, key = "id") => {
+        const cell = document.createElement("td");
+        cell.setAttribute("data-attr", key);
+        cell.innerHTML = item;
+        row.appendChild(cell);
+    };
+
+    const getTableContent = (data) => {
+        console.dir(typeof data);
+        data.map((obj) => {
+            const row = createRow(obj);
+            console.dir(row)
+            tableContent.appendChild(row);
+        });
+    };
+
+    window.addEventListener("load", () => {
+        tableContent = document.getElementById("table-content");
+        getTableContent(tableData);
+    });
+</script>
 
 <div class="dashboard">
-
     <h1>Equipment List</h1>
 
     <table id="dashboard_table">
-        <tr>
-            <th>Id</th>
-            <th>Name</th>
-            <th>Qty</th>
-            <th>Type</th>
-            <th>Location</th>
-            <th>Status</th>
-            <th>Comments</th>
-            <th>Action</th>
-        </tr>
-        {% for item in equipment %}
+        <thead>
             <tr>
-                <td>{{item.pk}}</td>
-                <td>{{item.name}}</td>
-                <td>{{item.quantity}}</td>
-                <td>{{item.get_type_display}}</td>
-                <td>{{item.location}}</td>
-                <td>{{item.get_status_display}}</td>
-                <td>{{item.comment}}</td>
-                <td><button class="styled__button">Book</button></td>
+                <th><button>Id</button></th>
+                <th>Name</th>
+                <th>Quantity</th>
+                <th>Type</th>
+                <th>Location</th>
+                <th>Status</th>
+                <th>Comments</th>
+                <th>Action</th>
             </tr>
-
-        {% endfor %}
+        </thead>
+        <tbody id="table-content"></tbody>
     </table>
 </div>
 

@@ -58,7 +58,30 @@
     padding: 1rem 0.75rem;
     font-size: 1rem;
     text-align: left;
+    
+  }
+
+  tr{
+    width: 10px;
+  }
+
+  thead tr {
+    border-bottom: 1px solid #ddd;
+    border-top: 1px solid #ddd;
+    height: 1px;
+  }
+
+  th:not(:first-of-type) {
+    border-left: 1px solid #ddd;
   }
 
 
+  
+td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+}
+tbody tr {
+  border-bottom: 1px solid #ddd;
+}
 }
