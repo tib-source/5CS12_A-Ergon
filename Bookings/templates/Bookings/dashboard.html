@@ -1,12 +1,35 @@
 {%extends 'Bookings/base_main.html'%}
 {% block content %}
-<h1> YOU HAVE BEEN AUTHENTICATED </h1>
-{{user.first_name}}
 
-<form method="post" action="{% url 'logout' %}"class="auth" >
-    {% csrf_token %}
+<div class="dashboard">
 
-    <button> Logout </button> 
-</form>
+    <h1>Equipment List</h1>
+
+    <table id="dashboard_table">
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Qty</th>
+            <th>Type</th>
+            <th>Location</th>
+            <th>Status</th>
+            <th>Comments</th>
+            <th>Action</th>
+        </tr>
+        {% for item in equipment %}
+            <tr>
+                <td>{{item.pk}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.quantity}}</td>
+                <td>{{item.get_type_display}}</td>
+                <td>{{item.location}}</td>
+                <td>{{item.get_status_display}}</td>
+                <td>{{item.comment}}</td>
+                <td><button class="styled__button">Book</button></td>
+            </tr>
+
+        {% endfor %}
+    </table>
+</div>
 
 {%endblock content %}

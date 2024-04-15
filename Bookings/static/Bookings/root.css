@@ -16,6 +16,7 @@
   --button: #373771;
   --error: #883d3d;
   --white: #ffffff;
+  --sidebar: 350px;
 }
 
 
@@ -30,5 +31,34 @@
 }
 .styled__button:hover{ 
     background-color: var(--button);
+
+}
+
+
+
+/* Dashboard SECTION */
+
+.dashboard{ 
+  overflow-y: scroll;
+  height: 100%;
+  width: 100vw;
+  display: grid;
+  padding: 3rem;
+
+  h1{ 
+    font-size: 3rem;
+    margin-bottom: 3rem;
+  }
+
+  table { 
+    border-collapse: collapse;
+
+  }
+  td,th{ 
+    padding: 1rem 0.75rem;
+    font-size: 1rem;
+    text-align: left;
+  }
+
 
 }

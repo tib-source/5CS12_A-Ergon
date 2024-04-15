@@ -5,7 +5,7 @@ body{
 
 
 .navigation{ 
-    min-width: 300px;
+    min-width: var(--sidebar);
     background-color: var(--primary-bg);
     overflow: hidden;
     display: flex;
@@ -13,7 +13,6 @@ body{
     align-items: center;
     flex-direction: column;
     color: white;
-
 
     .navigation__pic{
         width: 150px;
@@ -46,4 +45,12 @@ body{
 
         }
     }
+}
+
+
+.home__container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-width: calc(100vw - var(--sidebar));
 }
