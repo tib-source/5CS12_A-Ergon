@@ -2,33 +2,43 @@
 
 {{equipment|json_script:"data"}}
 
-<script defer>
+<script>
+
+    /* 
+
+    INSPIRED BY THE FOLLOWING ARTICLE : https://webdesign.tutsplus.com/how-to-create-a-sortable-html-table-with-javascript--cms-92993t
+    
+    */
     let tableData =
         JSON.parse(JSON.parse(document.getElementById("data").textContent))
 
+
+    let tableButtons;
     let tableContent;
 
     const createRow = (obj) => {
         const row = document.createElement("tr");
-        const objKeys = ['id', 'name','quantity', 'type', 'location', 'status', 'comment']
+        const objKeys = ['id', 'name', 'quantity', 'type', 'location', 'status', 'comment']
         objKeys.map((key) => {
             populateRow(row, obj[key], key);
         });
+        // TODO: GET THE BOOKING BUTTON WORKING 
+        const button = document.createElement("Button")
         return row;
     };
     const populateRow = (row, item, key = "id") => {
         const cell = document.createElement("td");
-        if( key == "status"){
+        if (key == "status") {
             cell.classList.add("status")
             const span = document.createElement('span')
             span.innerHTML = item
-            if(item == "On Loan"){
+            if (item == "On Loan") {
                 span.classList.add("status__loan")
-            }else span.classList.add(`status__${item.toLowerCase()}`)
+            } else span.classList.add(`status__${item.toLowerCase()}`)
 
 
 
-            item= span.outerHTML
+            item = span.outerHTML
         }
         cell.setAttribute("data-attr", key);
         cell.innerHTML = item;
@@ -39,13 +49,67 @@
         console.dir(typeof data);
         data.map((obj) => {
             const row = createRow(obj);
-            console.dir(row)
             tableContent.appendChild(row);
         });
     };
 
-    window.addEventListener("load", () => {
+
+    const sortRow = (data, row, direction = "asc") => {
+        // Clear out the table first 
+        tableContent.innerHTML = ""
+        // Use the direction to perform sorting
+        const sortedData = direction == 'asc' ?
+            [...data].sort(function (curr, next) {
+                if (curr[row] > next[row]) {
+                    return -1;
+                } else if (curr[row] < next[row]) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }) : [...data].sort(function (curr, next) {
+                if (curr[row] > next[row]) {
+                    return 1;
+                } else if (curr[row] < next[row]) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            })
+        getTableContent(sortedData);
+    }
+
+
+    const resetButtons = (event) => { 
+        [...tableButtons].map((button)=>{ 
+            if(button !== event.target){ 
+                button.removeAttribute('data-dir')
+            }
+        })
+    }
+
+
+    window.addEventListener("load", (e) => {
         tableContent = document.getElementById("table-content");
+        tableButtons = document.querySelectorAll('.table__row');
+        [...tableButtons].map((button) => { 
+
+
+            button.addEventListener("click", (event)=> { 
+
+                resetButtons(event);    
+
+                if(event.target.getAttribute('data-dir') == 'desc'){ 
+                    sortRow(tableData, event.target.innerHTML.toLowerCase(), "asc")
+                    event.target.setAttribute('data-dir', 'asc')
+                }else{ 
+                    sortRow(tableData, event.target.innerHTML.toLowerCase(), "desc")
+                    event.target.setAttribute('data-dir', 'desc')
+
+                }
+
+            })
+        })
         getTableContent(tableData);
     });
 </script>
@@ -56,13 +120,13 @@
     <table id="dashboard_table">
         <thead>
             <tr>
-                <th><button>Id</button></th>
-                <th><button>Name</button></th>
-                <th><button>Quantity</button></th>
-                <th><button>Type</button></th>
-                <th><button>Location</button></th>
-                <th><button>Status</button></th>
-                <th><button>Comments</button></th>
+                <th><button class="table__row">Id</button></th>
+                <th><button class="table__row">Name</button></th>
+                <th><button class="table__row">Quantity</button></th>
+                <th><button class="table__row">Type</button></th>
+                <th><button class="table__row">Location</button></th>
+                <th><button class="table__row">Status</button></th>
+                <th><button class="table__row">Comment</button></th>
                 <th>Action</th>
             </tr>
         </thead>
