@@ -3,17 +3,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from Bookings.models import Student, Equipment
 from django.contrib.auth.models import User
-from rest_framework import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 
-
-class EquipmentSerializer(serializers.ModelSerializer):
-    type = serializers.ChoiceField(choices=Equipment.type_choices)
-    status = serializers.ChoiceField(choices=Equipment.status_choices)
-
-    class Meta:
-        model = Equipment
-        fields = '__all__'
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):

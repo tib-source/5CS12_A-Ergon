@@ -18,6 +18,18 @@
     };
     const populateRow = (row, item, key = "id") => {
         const cell = document.createElement("td");
+        if( key == "status"){
+            cell.classList.add("status")
+            const span = document.createElement('span')
+            span.innerHTML = item
+            if(item == "On Loan"){
+                span.classList.add("status__loan")
+            }else span.classList.add(`status__${item.toLowerCase()}`)
+
+
+
+            item= span.outerHTML
+        }
         cell.setAttribute("data-attr", key);
         cell.innerHTML = item;
         row.appendChild(cell);
@@ -45,12 +57,12 @@
         <thead>
             <tr>
                 <th><button>Id</button></th>
-                <th>Name</th>
-                <th>Quantity</th>
-                <th>Type</th>
-                <th>Location</th>
-                <th>Status</th>
-                <th>Comments</th>
+                <th><button>Name</button></th>
+                <th><button>Quantity</button></th>
+                <th><button>Type</button></th>
+                <th><button>Location</button></th>
+                <th><button>Status</button></th>
+                <th><button>Comments</button></th>
                 <th>Action</th>
             </tr>
         </thead>
