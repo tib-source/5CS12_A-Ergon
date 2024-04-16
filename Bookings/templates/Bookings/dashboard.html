@@ -90,11 +90,39 @@
 
 
     window.addEventListener("load", (e) => {
-        tableContent = document.getElementById("table-content");
+        tableContent = document.getElementById("table_content");
         tableButtons = document.querySelectorAll('.table__row');
+        searchInput = document.getElementById('search_input')
+        searchButton = document.getElementById("search_button");
+        noResultDiv = document.createElement('div')
+
+        // Event listener on the search button so that it can filter the table when it is clicked; 
+        searchButton.addEventListener("click", (event)=>{ 
+
+            event.preventDefault();
+            // Get text from the search Bar 
+            const query = searchInput.value.toLowerCase();
+            // Clear the table 
+            tableContent.innerHTML = ""
+            // Filter the data using the query 
+            const searchResult = [...tableData].filter((item)=> { 
+                let result = item["name"].toLowerCase().includes(query);
+                return result
+
+            })
+            // if search result is empty
+            if(searchResult.length == 0){
+
+                noResultDiv.innerHTML = `<p> No result for this search </p>`
+                tableContent.appendChild(noResultDiv)
+            }
+
+            // Repopulate the table 
+            getTableContent(searchResult)
+        });
+
+        // Event listeners on the Table columns so that they can sort the table when clicked 
         [...tableButtons].map((button) => { 
-
-
             button.addEventListener("click", (event)=> { 
 
                 resetButtons(event);    
@@ -110,13 +138,19 @@
 
             })
         })
+
+
+
         getTableContent(tableData);
     });
 </script>
 
 <div class="dashboard">
     <h1>Equipment List</h1>
-
+    <form class="input__container">
+        <input class="input__field" type="text" name="searchInput" autofocus=""  maxlength="150"  id="search_input">
+        <button class="styled__button" id="search_button"> Search </button>
+    </form>
     <table id="dashboard_table">
         <thead>
             <tr>
@@ -130,7 +164,7 @@
                 <th>Action</th>
             </tr>
         </thead>
-        <tbody id="table-content"></tbody>
+        <tbody id="table_content"></tbody>
     </table>
 </div>
 
