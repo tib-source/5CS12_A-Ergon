@@ -1,5 +1,5 @@
 from django.urls import include, path
-from Bookings.views import DashboardView
+from Bookings.views import DashboardView, student_register 
 from django.views.generic.base import TemplateView  # new
 
 frontend_patterns = [ 
@@ -12,7 +12,10 @@ frontend_patterns = [
 
 urlpatterns=[
   path('', include(frontend_patterns)),
-  path('accounts/', include("django.contrib.auth.urls"))
+  path('accounts/', include("django.contrib.auth.urls")),
+  path('register/student', student_register ),
+  path('register/staff', student_register ),
+  path('register/admin', student_register )
 ]
 
 

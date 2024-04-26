@@ -1,32 +1,148 @@
-{% extends "auth_base.html" %}
+{% extends "registration/auth_base.html" %}
+
 
 {% block content %}
+<script>
 
-<h1>Register</h1>
+    function showPassword() {
 
-<div class="input__container">
-    <div class="input__label">
-        <p>Username</p>
+        var pass1 = document.getElementById("id_password1");
+        var pass2 = document.getElementById("id_password2");
+
+
+        if (pass1.type === "password") {
+            pass1.type = "text";
+            pass2.type = "text";
+        } else {
+            pass1.type = "password";
+            pass2.type = "password";
+        }
+    }
+
+</script>
+
+<form method="POST" class="auth register">
+    {% csrf_token %}
+    <section class="title">
+        <h1>Create An Account </h1>
+
+        <div class="input__container">
+            <select class="input__field" name="current_course" id="id_current_course">
+                <option value="1">Student</option>
+                <option value="2">Staff</option>
+            </select>
+
+        </div>
+
+    </section>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>First Name</p>
+            </div>
+            <input type="text" class="input__field" name="first_name" maxlength="150" id="id_first_name">
+
+        </div>
+
+        <div class="input__container">
+            <div class="input__label">
+                <p>Last Name</p>
+            </div>
+            <input type="text" class="input__field" name="last_name" maxlength="150" id="id_last_name">
+        </div>
+    </section>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>User Name</p>
+            </div>
+            <input class="input__field" type="text" name="username" autofocus="" autocapitalize="none"
+                autocomplete="username" maxlength="150" required id="id_username">
+
+        </div>
+
+        <div class="input__container">
+            <label for="id_current_course">Current course:</label>
+
+
+
+            <select class="input__field" name="current_course" id="id_current_course">
+                <option value="CS101">BSc in Computer Science</option>
+
+                <option value="ENG201">BA in English Literature</option>
+
+                <option value="MATH301">BSc in Mathematics</option>
+
+                <option value="CHEM101">BSc in Chemistry</option>
+
+                <option value="PHYS202">BSc in Physics</option>
+
+                <option value="HIST102">BA in History</option>
+
+                <option value="PSYC301">BSc in Psychology</option>
+
+                <option value="BIO101">BSc in Biology</option>
+
+                <option value="ART205">BFA in Fine Arts</option>
+
+                <option value="ECON202">BSc in Economics</option>
+
+                <option value="PHIL101">BA in Philosophy</option>
+
+                <option value="BUS301">BBA</option>
+
+                <option value="EDUC202">Bachelor of Education</option>
+
+                <option value="MED101">MBBS</option>
+
+                <option value="LAW201">LLB</option>
+
+                <option value="ARCH301">BArch</option>
+
+                <option value="MUSIC202">BMus</option>
+
+                <option value="NURS101">BSN</option>
+
+                <option value="COMM301">BA in Communication Studies</option>
+
+                <option value="SOC101">BA in Sociology</option>
+
+            </select>
+
+        </div>
+    </section>
+    <div class="input__container">
+        <div class="input__label">
+            <p>Email</p>
+        </div>
+        <input type="email" class="input__field" name="email" maxlength="320" required="" id="id_email">
+
     </div>
-    <input type="text" class="input__field">
-    <div class="input__error">
-        <p>Error Here</p>
-    </div>
-</div>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Password</p>
+            </div>
+            <input type="password" class="input__field" name="password1" autocomplete="new-password" required=""
+                aria-describedby="id_password1_helptext" id="id_password1">
+        </div>
 
+        <div class="input__container">
+            <div class="input__label">
+                <p>Confirm Password</p>
+            </div>
+            <input type="password" class="input__field" name="password2" autocomplete="new-password" required=""
+                aria-describedby="id_password2_helptext" id="id_password2">
+        </div>
 
-<div class="input__container">
-    <div class="input__label">
-        <p>Password</p>
-    </div>
-    <input type="text" class="input__field">
-    <div class="input__error">
-        <p>Error Here</p>
-    </div>
-</div>
+        <div>        <input type="checkbox" onclick="showPassword()"> Show Password </input>
+        </div>
+    </section>
+    <p>Use 8 or more characters with a mix of letters, numbers & symbols</p>
+    <button class="styled__button" type="submit"> Register </button>
+    <a href="{% url 'login' %}">Log in Instead</a>
+</form>
 
-
-<button class="styled__button" type="submit"> Login </button>
 
 
 {% endblock content %}

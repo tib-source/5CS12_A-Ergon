@@ -31,6 +31,39 @@ body {
         text-transform: capitalize;
 
     }
+        
+    
+    a{ 
+        text-align: center;
+    }        
+
 
 }
 
+
+.register{ 
+
+    section{ 
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr 1fr;
+
+    }        
+
+
+
+    .title{ 
+        display: flex;
+        justify-content: space-between;
+
+        .input__container {
+
+            .input__field{ 
+                width: 100px;
+            }
+        }
+        
+
+    }
+
+}
