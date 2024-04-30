@@ -104,3 +104,13 @@ class Booking(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     admin = models.ForeignKey(Admin, on_delete = models.CASCADE, related_name="approved_by")
     equipment = models.ForeignKey(Equipment, on_delete = models.CASCADE)
+    
+class Report(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    report_type = models.CharField(max_length=100)
+    time_period = models.CharField(max_length=100)
+    format_type = models.CharField(max_length=50)
+    generated_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username}'s {self.report_type} Report"
