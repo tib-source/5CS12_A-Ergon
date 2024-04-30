@@ -80,6 +80,9 @@ class ReportView(LoginRequiredMixin, TemplateView):
 
         # Query equipment data based on the start date
         equipment_queryset = Equipment.objects.filter(last_audit__gte=start_date)
+        
+        if not equipment_queryset.exists():
+            return "No data available for this time period."
 
         # Convert queryset to a list of dictionaries
         serialized_data = list(equipment_queryset.values())
@@ -98,59 +101,55 @@ class ReportView(LoginRequiredMixin, TemplateView):
         return report_content
 
     def generate_pdf_report(self, report_data):
+        if isinstance(report_data, str) and report_data.startswith("No data available"):
+            # Generate PDF with message indicating no data available
+            buffer = BytesIO()
+            p = canvas.Canvas(buffer)
+            p.drawString(100, 750, report_data)  # Display the no data available message
+            p.save()
+            pdf_content = buffer.getvalue()
+            buffer.close()
+            return pdf_content
+
+        # Otherwise, generate PDF with the report data
         buffer = BytesIO()
         p = canvas.Canvas(buffer)
-
-        # Set initial y-coordinate for drawing text
         x = 100
         y = 750
+        max_line_width = 75
 
-        # Define maximum line width
-        max_line_width = 75  
-
-        # Define page height and bottom margin
-        page_height = 800  
-        bottom_margin = 50  
-
-        # Draw the report data on the PDF canvas
         for entry in report_data:
             formatted_entry = ', '.join([f"{key}: {value if key != 'comment' or value else 'no comment'}" for key, value in entry.items()])
-            # Split the formatted entry into segments that fit within the maximum line width
             segments = [formatted_entry[i:i+max_line_width] for i in range(0, len(formatted_entry), max_line_width)]
 
-            # Calculate the remaining space on the current page
-            remaining_space = y - bottom_margin
-
-            # Check if there is enough space on the current page for the current entry
-            if remaining_space < len(segments) * 15:
-                # If not enough space, start a new page
-                p.showPage()
-                y = page_height - 50  # Reset y-coordinate for the new page
-
-            # Draw each segment on the PDF canvas
             for segment in segments:
                 p.drawString(100, y, segment)
                 y -= 15
 
-            # Move to the next line with an extra line spacing
-            y -= 15 
+            y -= 15
 
         p.save()
         pdf_content = buffer.getvalue()
         buffer.close()
-
         return pdf_content
 
     def generate_doc_report(self, report_data):
-        doc = Document()
+        if isinstance(report_data, str) and report_data.startswith("No data available"):
+            # Generate DOCX with message indicating no data available
+            doc = Document()
+            doc.add_paragraph(report_data)
+            temp_file = tempfile.NamedTemporaryFile(delete=False)
+            doc.save(temp_file)
+            with open(temp_file.name, 'rb') as f:
+                doc_content = f.read()
+            return doc_content
 
-        # Draw the report data on the DOCX document
+        # Otherwise, generate DOCX with the report data
+        doc = Document()
         for entry in report_data:
             formatted_entry = ', '.join([f"{key}: {value if key != 'comment' or value else 'no comment'}" for key, value in entry.items()])
             doc.add_paragraph(formatted_entry)
-
-            # Add an empty paragraph for extra line spacing
-            doc.add_paragraph()
+            doc.add_paragraph()  # Add an empty paragraph for extra line spacing
 
         temp_file = tempfile.NamedTemporaryFile(delete=False)
         doc.save(temp_file)
@@ -158,7 +157,7 @@ class ReportView(LoginRequiredMixin, TemplateView):
             doc_content = f.read()
 
         return doc_content
-
+    
     def post(self, request):
       # Retrieve form data
         report_type = request.POST.get('report_type')
