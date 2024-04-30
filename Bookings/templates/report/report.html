@@ -7,86 +7,93 @@
     <title>Report Page</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'Bookings/root.css'%}">
-
     <style>
-        body {
+       body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: "Montserrat", "Saira", sans-serif;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-top: 20px;
         }
         .heading {
             text-align: center;
             margin-bottom: 700px;
             margin-left: 20px;
+            font-size: 3rem;
+            font-weight: 500;
         }
-
         .row {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             margin-bottom: 20px;
         }
-        .report-type,
-        .time-period {
-            flex: 1;
+        .row:last-child {
+            margin-bottom: 0;
         }
-        .Email,
-        .format-type {
-            margin-top: 20px;
+        .form-group {
+            margin-bottom: 20px;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
+        label {
+            margin-bottom: 8px;
+            color: #2e2e2e;
         }
-        .form-group select,
-        .form-group input {
+        select,
+        input[type="submit"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
+            border: 1px solid #dddddd;
+            border-radius: 4px;
             box-sizing: border-box;
+            font-size: 16px;
         }
-       
-        .form-group.row {
-            display: flex;
-            gap: 20px;
+        input[type="submit"] {
+            color: #ffffff;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <h1 class="heading">Report</h1>
     <div class="container">
-        <div class="row">
-            <div class="report-type">
-                <label for="report">Report type:</label>
-                <select id="report-type">
-                    <option value="bookings">Bookings</option>
-                    <option value="approvals">Approvals</option>
+        <form id="report-form" method="post"> 
+            {% csrf_token %}
+            <div class="row">
+                <div class="report-type">
+                    <label for="report">Report type:</label>
+                    <select id="report-type" name="report_type"> 
+                        <option value="bookings">Bookings</option>
+                        <option value="equipment">Last audited equipment</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row">
+                <div class="time-period">
+                    <label for="timeFrame">Time period:</label>
+                    <select id="time-period" name="time_period">  
+                        <option value="last2weeks">Last two weeks</option>
+                        <option value="last1month">Last one month</option>
+                        <option value="last3months">Last three months</option>
+                        <option value="last6months">Last six months</option>
+                        <option value="last1year">Last one year</option>
+                        <option value="last2years">Last two years</option>
+                    </select>
+                </div>
+            </div>
+            <div class="format-type">
+                <label for="Format">Format:</label>
+                <select id="format-type" name="format_type">
+                    <option value="pdf">PDF</option>
+                    <option value="doc">Docx</option>
                 </select>
             </div>
-            <div class="time-period">
-                <label for="timeFrame">Time period:</label>
-                <select id="time-period">
-                    <option value="last2weeks">Last two weeks</option>
-                    <option value="last1month">Last one month</option>
-                    <option value="last3months">Last three months</option>
-                    <option value="last6months">Last six months</option>
-                    <option value="last1year">Last one year</option>
-                </select>
+            <div class="form-group">
+                <button type="submit" class="styled__button" id="generate_button">Generate</button>  
             </div>
-        </div>
-        <div class="Email">
-            <label for="textbox">Email:</label>
-            <input class="input__field" type="text" id="email_textbox">
-        </div>
-        <div class="format-type">
-            <label for="Format">Format:</label>
-            <select id="format-type">
-                <option value="pdf">PDF</option>
-                <option value="doc">Doc</option>
-            </select>
-        </div>
-        <div class="form-group">
-            <button class="styled__button" id="generate_button">Generate</button>
-        </div>
+        </form> 
     </div>
 </body>
 </html>
