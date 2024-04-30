@@ -1,7 +1,7 @@
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
-from Bookings.models import Student, Equipment
+from Bookings.models import Student, Equipment, Report
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect
@@ -61,9 +61,6 @@ class ReportView(LoginRequiredMixin, TemplateView):
     template_name = 'report/report.html'
 
     def generate_report(self, report_type, time_period):
-        """
-        Generate report based on report type and time period.
-        """
         # Calculate the start date based on the time period
         if time_period == 'last2weeks':
             start_date = timezone.now() - timedelta(days=14)
@@ -101,9 +98,6 @@ class ReportView(LoginRequiredMixin, TemplateView):
         return report_content
 
     def generate_pdf_report(self, report_data):
-        """
-        Generate PDF report.
-        """
         buffer = BytesIO()
         p = canvas.Canvas(buffer)
 
@@ -148,9 +142,6 @@ class ReportView(LoginRequiredMixin, TemplateView):
         return pdf_content
 
     def generate_doc_report(self, report_data):
-        """
-        Generate DOCX report.
-        """
         doc = Document()
 
         # Draw the report data on the DOCX document
@@ -169,10 +160,9 @@ class ReportView(LoginRequiredMixin, TemplateView):
         return doc_content
 
     def post(self, request):
-       # Retrieve form data
+      # Retrieve form data
         report_type = request.POST.get('report_type')
         time_period = request.POST.get('time_period')
-        email = request.POST.get('email')
         format_type = request.POST.get('format_type')
 
         try:
@@ -191,8 +181,17 @@ class ReportView(LoginRequiredMixin, TemplateView):
             else:
                 raise ValueError("Invalid format type. Must be 'pdf' or 'doc'.")
 
+            # Save report information to the database
+            user = request.user
+            report = Report.objects.create(
+                user=user,
+                report_type=report_type,
+                time_period=time_period,
+                format_type=format_type
+            )
+
             # Prepare file response to download
-            filename = f"report.{file_extension}"
+            filename = f"report_{report.id}.{file_extension}"
             response = FileResponse(BytesIO(report_content), content_type=content_type)
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
