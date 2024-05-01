@@ -1,5 +1,5 @@
 from django.urls import include, path
-from Bookings.views import DashboardView, admin_login, handleBooking, register, ReportView , add_equipment, delete_equipment
+from Bookings.views import DashboardView, admin_login, handleBooking, register, ReportView , add_equipment, delete_equipment, update_equipment
 from django.views.generic.base import TemplateView  # new
 
 frontend_patterns = [ 

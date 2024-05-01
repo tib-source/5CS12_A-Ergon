@@ -318,7 +318,6 @@ def add_equipment(request):
         return JsonResponse({'success': False, 'message': 'Only POST requests are allowed'}, status=405)
     
 def delete_equipment(request):
-    print("meow")
     if request.method == "POST":  
         # Check if the user is staff
         if not request.user.is_staff:
