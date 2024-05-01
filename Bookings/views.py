@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.generic import TemplateView
 from Bookings.models import Booking, Report, Student, Equipment
@@ -77,6 +78,8 @@ def register(response):
         form = StudentRegisterForm()
 
     return render(response, "registration/signup.html", {"form" : form})
+
+
 
 
 
@@ -225,7 +228,6 @@ class ReportView(LoginRequiredMixin, TemplateView):
     
     
 def handleBooking(req):
-    print(req.method == "POST")
     if(req.method == "POST"): 
         # Find equipment 
         print("meow")
@@ -249,13 +251,69 @@ def handleBooking(req):
                     equipment=to_book
                 )
                 new_booking.save()
-                return HttpResponse(json.dumps({"message" : "Booking Succesfull"}), status=200)
+                return JsonResponse({ 'success': True, "message" : "Booking Succesfull"}, status=200)
 
             else: 
-                return HttpResponse(json.dumps({"message" : "Equipment is not available"}), status=403)
+                return JsonResponse({'success': False, "message" : "Equipment is not available"}, status=403)
         except Equipment.DoesNotExist: 
-                return HttpResponse(json.dumps({"message": "Equipment not found"}), status=404)
+                return JsonResponse({'success': False,"message": "Equipment not found"}, status=404)
         except Exception as e:
             print(e)
-            return HttpResponse(json.dumps({"message": "Failed to book:" + str(e)}), status=500)
-    return HttpResponse("Method not allowed", status=405)
+            return JsonResponse({'success': False,"message": "Failed to book:" + str(e)}, status=500)
+    return JsonResponse({'success': False, "message" : "Method not allowed"}, status=405)
+
+
+def add_equipment(request):
+    if request.method == 'POST':
+        if (not request.user.is_staff):
+            return JsonResponse({'success': False, 'message': 'User is not an admin'})
+        # Extract data from the POST request
+        data =json.loads(request.body)
+        
+        equipment_name = data.get('name')
+        equipment_quantity = data.get('quantity')
+        equipment_type = data.get('type')
+        equipment_location = data.get('location')
+        equipment_status = data.get('status')
+        equipment_comment = data.get('comment')
+
+        # Create or update equipment booking in the database
+        try:
+            equipment = Equipment.objects.create(
+                name=equipment_name,
+                quantity = equipment_quantity, 
+                type = equipment_type, 
+                location = equipment_location, 
+                status = equipment_status, 
+                comment = equipment_comment,
+                last_audit = datetime.now()
+            )
+            
+            equipment.save()
+            return JsonResponse({'success': True, 'message': 'Equipment booking saved successfully'})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'success': False, 'message': 'Only POST requests are allowed'}, status=405)
+    
+def delete_equipment(request):
+    if request.method == "POST":  
+        # Check if the user is staff
+        if not request.user.is_staff:
+            return JsonResponse({'success': False, 'message': 'Permission denied. Only staff members can delete equipment.'}, status=403)
+        
+        data =json.loads(request.body)
+        equipment_id = data.get('id')
+
+        # Check if the equipment with the given ID exists
+        try:
+            equipment = Equipment.objects.get(id=equipment_id)
+        except Equipment.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'Equipment with the specified ID does not exist.'}, status=404)
+
+        # Delete the equipment
+        equipment.delete()
+        
+        return JsonResponse({'success': True, 'message': 'Equipment deleted successfully.'})
+    return JsonResponse({'success': False, 'message': 'Only POST requests are allowed'}, status=405)
