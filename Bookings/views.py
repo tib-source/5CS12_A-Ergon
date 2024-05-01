@@ -12,7 +12,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
 from django.http import FileResponse
-from docx import Document
+# from docx import Document
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import tempfile
@@ -135,30 +135,30 @@ class ReportView(LoginRequiredMixin, TemplateView):
         buffer.close()
         return pdf_content
 
-    def generate_doc_report(self, report_data):
-        if isinstance(report_data, str) and report_data.startswith("No data available"):
-            # Generate DOCX with message indicating no data available
-            doc = Document()
-            doc.add_paragraph(report_data)
-            temp_file = tempfile.NamedTemporaryFile(delete=False)
-            doc.save(temp_file)
-            with open(temp_file.name, 'rb') as f:
-                doc_content = f.read()
-            return doc_content
+    # def generate_doc_report(self, report_data):
+    #     if isinstance(report_data, str) and report_data.startswith("No data available"):
+    #         # Generate DOCX with message indicating no data available
+    #         doc = Document()
+    #         doc.add_paragraph(report_data)
+    #         temp_file = tempfile.NamedTemporaryFile(delete=False)
+    #         doc.save(temp_file)
+    #         with open(temp_file.name, 'rb') as f:
+    #             doc_content = f.read()
+    #         return doc_content
 
-        # Otherwise, generate DOCX with the report data
-        doc = Document()
-        for entry in report_data:
-            formatted_entry = ', '.join([f"{key}: {value if key != 'comment' or value else 'no comment'}" for key, value in entry.items()])
-            doc.add_paragraph(formatted_entry)
-            doc.add_paragraph()  # Add an empty paragraph for extra line spacing
+    #     # Otherwise, generate DOCX with the report data
+    #     doc = Document()
+    #     for entry in report_data:
+    #         formatted_entry = ', '.join([f"{key}: {value if key != 'comment' or value else 'no comment'}" for key, value in entry.items()])
+    #         doc.add_paragraph(formatted_entry)
+    #         doc.add_paragraph()  # Add an empty paragraph for extra line spacing
 
-        temp_file = tempfile.NamedTemporaryFile(delete=False)
-        doc.save(temp_file)
-        with open(temp_file.name, 'rb') as f:
-            doc_content = f.read()
+    #     temp_file = tempfile.NamedTemporaryFile(delete=False)
+    #     doc.save(temp_file)
+    #     with open(temp_file.name, 'rb') as f:
+    #         doc_content = f.read()
 
-        return doc_content
+    #     return doc_content
     
     def post(self, request):
       # Retrieve form data
