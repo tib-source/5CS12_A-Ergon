@@ -14,7 +14,9 @@
   --gray: #666666;
   --gray-light: #66666680;
   --button: #373771;
-  --error: #883d3d;
+  --error: #d15757;
+  --accent: #57c2d1;
+  --success: #61d295;
   --white: #ffffff;
   --sidebar: 350px;
 }
@@ -165,6 +167,67 @@
     }
   }
 
+  .equipment__filter{ 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .styled__button{ 
+      color: var(--white);
+      cursor: pointer;
+      border-radius:.25rem;
+
+    }
+    .search{
+      .styled__button{ 
+        background-color: var(--primary-bg);
+        color: var(--white);
+        cursor: pointer;
+        border-radius:0rem .25rem .25rem 0rem;
+
+      
+      }
+
+
+
+    }
+    .equipment__add{
+      background-color: red;
+      border-radius: 1rem;
+    }
+    
+
+
+
+  }
+
+
+
+  .equipment__admin{
+     display: grid;
+     grid-template-columns: 1fr 1fr;
+     gap: .2rem;
+
+    .styled__button{ 
+      border-radius: 0.25rem;
+      font-weight: 600;
+     }
+
+     .equipment__edit{ 
+      background-color: var(--accent);
+
+    }
+
+    
+    .equipment__delete{ 
+      background-color: var(--error);
+
+    }
+  }
+  .search{ 
+    
+  
+  }
 
   .styled__button{ 
     background-color: var(--button);
@@ -172,12 +235,9 @@
     height: 2.5rem;
     border: 0;
     padding: 0 1rem;
-    border-radius:0rem .25rem .25rem 0rem;
     cursor: pointer;
     font-size: 0.85rem;
   }
-
-
   
 
 }

@@ -13,17 +13,19 @@
     <script>
         // Use this to style buttons according to what page they are on
         console.log(window.location)
-    </script>
+        </script>
+
     <div class="navigation">
         {% if user.profile_pic %}
-        <img src="{{ user.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
-        {{user.get_full_name}}
-        
+            <div class=" navigation__profile">
+                <img src="{{ user.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
+                {{user.get_full_name}}
+            </div>
         {% else %}
-
-        <img src="/media/default.jpg" class="navigation__pic" alt="Profile Picture">
-        Tibebe Demissie
-
+            <div class=" navigation__profile">
+                <img src="/media/default.jpg" class="navigation__pic" alt="Profile Picture">
+                Tibebe Demissie
+            </div>
         {% endif %}
         <div class="navigation__pages">
             <a href="/dashboard">Dashboard</a>

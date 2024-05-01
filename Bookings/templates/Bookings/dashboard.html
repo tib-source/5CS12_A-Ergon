@@ -14,7 +14,7 @@
 
     let tableButtons;
     let tableContent;
-
+    let isAdmin;
     const createRow = (obj) => {
         const row = document.createElement("tr");
         const objKeys = ['id', 'name', 'quantity', 'type', 'location', 'status', 'comment']
@@ -22,16 +22,39 @@
             populateRow(row, obj[key], key);
         });
         // TODO: GET THE BOOKING BUTTON WORKING 
-        const bookingButton = document.createElement("Button");
-        bookingButton.innerHTML = "Book"
-        bookingButton.classList.add("styled__button")
-        bookingButton.onclick = (() => toggleBookingModal(obj["id"]))
-        row.appendChild(bookingButton)
+
+        if(!isAdmin){
+            const bookingButton = document.createElement("Button");
+            bookingButton.innerHTML = "Book"
+            bookingButton.classList.add("styled__button")
+            bookingButton.onclick = (() => toggleBookingModal(obj["id"]))
+            row.appendChild(bookingButton)
+        }else{ 
+            const adminButtonsContainer = document.createElement('div')
+            adminButtonsContainer.classList.add("equipment__admin")
+
+            const editButton = document.createElement("Button");
+            editButton.innerHTML = "Edit"
+            editButton.classList.add("styled__button")
+            editButton.classList.add("equipment__edit")
+            editButton.onclick = (() => toggleEditModal(obj["id"]))
+            adminButtonsContainer.appendChild(editButton)
+
+            const deleteButton = document.createElement("Button");
+            deleteButton.innerHTML = "Delete"
+            deleteButton.classList.add("styled__button")
+            deleteButton.classList.add("equipment__delete")
+            deleteButton.onclick = (() => toggleDeletemodal(obj["id"]))
+            adminButtonsContainer.appendChild(deleteButton)
+
+
+            row.appendChild(adminButtonsContainer)
+        }
+
         return row;
     };
 
     const toggleBookingModal = (id) =>{ 
-
         if(id){ 
             // Preselect the item from the drop down for the user
             const dropdown = document.getElementById('bookingDropdown')
@@ -151,7 +174,7 @@
     }
 
     window.addEventListener("load", (e) => {
-
+        isAdmin = JSON.parse(document.getElementById('user_id').textContent); 
         tableContent = document.getElementById("table_content");
         tableButtons = document.querySelectorAll('.table__row');
         searchInput = document.getElementById('search_input')
@@ -207,6 +230,8 @@
 
     });
 </script>
+{{ request.user.is_staff|json_script:"user_id" }}
+
 <form action="/api/book" id="booking-modal" style="visibility: hidden; z-index: 1;" >
         <div class="input__container">
             <div class="input__label">
@@ -249,9 +274,14 @@
 
 <div class="dashboard">
     <h1>Equipment List</h1>
-    <form class="input__container">
+    <form class="equipment__filter">
+        <section class="input__container search" >
         <input class="input__field" type="text" name="searchInput" autofocus=""  maxlength="150"  id="search_input">
         <button class="styled__button" id="search_button"> Search </button>
+        </section>
+        {% if user.is_staff %}
+            <button class="styled__button" id="add_equipment"> Add Equipment </button>
+        {%endif%}
     </form>
     <table id="dashboard_table">
         <thead>

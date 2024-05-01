@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from datetime import datetime
 # Create your models here.
 
 
@@ -98,11 +99,11 @@ class Equipment(models.Model):
     
     
 class Booking(models.Model):
+    from_date = models.DateField(default=datetime.now)
     return_date = models.DateField()
     approved = models.BooleanField()
     returned = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    admin = models.ForeignKey(Admin, on_delete = models.CASCADE, related_name="approved_by")
     equipment = models.ForeignKey(Equipment, on_delete = models.CASCADE)
     admin = models.ForeignKey(Admin, on_delete = models.SET_NULL, related_name="approved_by", null=True)
     equipment = models.ForeignKey(Equipment, on_delete = models.CASCADE)

@@ -24,8 +24,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Retrieve the User object and add it to the context
-        student = User.objects.get(pk=self.request.user.pk)  
+        user = None
+        if(self.request.user.is_staff): 
+            user = self.request.user.staff if hasattr(self.request.user, "staff") else self.request.user
+        else:
+            user = self.request.user.student
+            
         # Get all Equipment objects from the database
         equipment_queryset = Equipment.objects.all()
 
@@ -42,8 +46,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         # Add data into context object
         context['equipment'] = serialized_json
-        context['student'] = student
-        
+        context['user'] = user
         return context
     
 
@@ -55,7 +58,7 @@ def register(response):
         user_type = response.POST.get('user_type')
         
         ## Use respective form for validation
-        ## Return register page with errors if invalid
+        ## Return register page with errors if invalid 
         if(user_type == "student"):
             form = StudentRegisterForm(response.POST) 
             if form.is_valid():
