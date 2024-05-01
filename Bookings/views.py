@@ -3,7 +3,7 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse
 from django.views.generic import TemplateView
-from Bookings.models import Student, Equipment
+from Bookings.models import Booking, Report, Student, Equipment
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect
