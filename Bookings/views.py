@@ -19,23 +19,23 @@ from io import BytesIO
 import tempfile
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
+from django.contrib.auth.forms import AuthenticationForm
 
-
-
-def adminLogin(request):
+def admin_login(request):
     if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user is not None and user.is_superuser:  
-            login(request, user)
-            return redirect('/Bookings/dashboard')  # Redirect to dashboard after login
-        else:
-            # Handle invalid login credentials
-            return render(request, 'registration/admin_login.html', {'error_message': 'Invalid login'})
+        form = AuthenticationForm(request, request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None and user.is_active and user.is_staff:
+                login(request, user)
+                return redirect('/dashboard')
+            else:
+                return render(request, 'registration/admin_login.html', {'form': form, 'error_message': 'Invalid login'})
     else:
-        return render(request, 'registration/admin_login.html')
-
+        form = AuthenticationForm()
+    return render(request, 'registration/admin_login.html', {'form': form})
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
