@@ -12,7 +12,6 @@
     let tableData =
         JSON.parse(JSON.parse(document.getElementById("data").textContent))
 
-
     let tableButtons;
     let tableContent;
 
@@ -23,9 +22,22 @@
             populateRow(row, obj[key], key);
         });
         // TODO: GET THE BOOKING BUTTON WORKING 
-        const button = document.createElement("Button")
+        const bookingButton = document.createElement("Button");
+        bookingButton.innerHTML = "Book"
+        bookingButton.classList.add("styled__button")
+        bookingButton.setAttribute("data-book", obj["id"])
+        bookingButton.onclick = toggleBookingModal
+        row.appendChild(bookingButton)
         return row;
     };
+
+    const toggleBookingModal = () =>{ 
+        console.log("helo")
+        const modal = document.getElementById('booking-modal')
+        modal.style.visibility= modal.style.visibility == "hidden" ? 'visible' : 'hidden';
+    }
+
+
     const populateRow = (row, item, key = "id") => {
         const cell = document.createElement("td");
         if (key == "status") {
@@ -89,7 +101,53 @@
     }
 
 
+    const populateBookingDropdown = (data) => { 
+        const dropdown = document.getElementById('bookingDropdown')
+
+        // clear previous data 
+        dropdown.innerHTML = "";
+        // intiial default 
+        const defaultOption = document.createElement('option')
+        defaultOption.text = "Select Equipment"
+        // Populate with json
+        data.forEach(element => {
+            let optionCurr = document.createElement('option')
+            optionCurr.value = element.id
+            optionCurr.text = element.id + " - " + element.name
+            dropdown.add(optionCurr)
+        });
+
+
+        // Extra functionality 
+        // Set the from date on the form to automatically be today: 
+        let fromDate = document.getElementById("fromDate");
+        fromDate.value = new Date().toISOString().slice(0, 10)
+    }
+
+    const handleBooking = (e) => { 
+        let selectedEquipmentId = document.getElementById("bookingDropdown").value;
+        let fromDate = document.getElementById("fromDate").value;
+        let untilDate = document.getElementById("untilDate").value;
+        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+        fetch('/api/book/', {
+            method: "POST",
+            headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken
+            }   , 
+            body: JSON.stringify({ 
+                id: selectedEquipmentId, 
+                from: fromDate, 
+                to: untilDate,
+            })
+        })
+
+       // toggleBookingModal()
+    }
+
     window.addEventListener("load", (e) => {
+
         tableContent = document.getElementById("table_content");
         tableButtons = document.querySelectorAll('.table__row');
         searchInput = document.getElementById('search_input')
@@ -140,10 +198,26 @@
         })
 
 
-
         getTableContent(tableData);
+        populateBookingDropdown(tableData);
+
     });
 </script>
+<form action="/api/book" id="booking-modal" style="visibility: visible; z-index: 1;" >
+    {% csrf_token %}
+
+    <select  class="input__field" name="bookingDropdown" id="bookingDropdown">
+
+    </select>
+
+    <label for="fromDate">Default Date (Today):</label>
+    <input type="date" id="fromDate" value="" >
+
+    <label for="untilDate">Select Date:</label>
+    <input type="date" id="untilDate">
+
+    <button type="button" onclick="handleBooking()">book</button>
+</form>
 
 <div class="dashboard">
     <h1>Equipment List</h1>

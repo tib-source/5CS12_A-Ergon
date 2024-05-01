@@ -15,14 +15,12 @@
         console.log(window.location)
     </script>
     <div class="navigation">
-        {% if student.profile_pic %}
-        <img src="{{ student.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
-        
-        {{student.get_full_name}}
+        {% if user.profile_pic %}
+        <img src="{{ user.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
+        {{user.get_full_name}}
         
         {% else %}
 
-        
         <img src="/media/default.jpg" class="navigation__pic" alt="Profile Picture">
         Tibebe Demissie
 
@@ -30,8 +28,11 @@
         <div class="navigation__pages">
             <a href="/dashboard">Dashboard</a>
             <a href="/bookings">Bookings</a>     
-            <a href="/notifications">Notifications</a>  
-            <a href="/report">Report</a>        
+            <a href="/notifications">Notifications</a> 
+            {% if user.is_staff %} 
+            <a href="/report">Report</a>     
+            <a href="/report">Users</a>     
+            {% endif %}   
             <a href="/profile">Account</a>    
         </div>
         <form method="post" action="{% url 'logout' %}"class="navigation__logout" >
