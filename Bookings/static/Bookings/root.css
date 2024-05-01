@@ -185,12 +185,41 @@
 
 #booking-modal{ 
   position: absolute;
-  width: 500px;
-  aspect-ratio: 1;
-  background-color: var(--bright);
-  display: grid;
-  justify-content: center;
-  align-items: center;
+  width: 600px;
+  background-color: var(--primary-bg);
+  backdrop-filter: blur(10px);
+  display: flex; 
+  border-radius: 1rem;
+  box-shadow: .2rem .2rem var(--bright);
+  flex-flow: column nowrap;
+  padding: 4rem;
+  gap: 1rem;
+  color: var(--white);
+  section{ 
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+
+  button{ 
+    transition: none!important;
+    width: 40%;
+    margin-top: 1rem;
+  }
+
+  .cancel{ 
+    background-color: var(--error);
+    border: 1px solid var(--error);
+  }
+
+
+  .modal__buttons{ 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 
 .status {

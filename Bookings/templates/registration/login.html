@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<form method="post" action="{% url 'login' %}"class="auth">
+<form method="post" action="{% url 'login' %}"class="auth login">
     {% csrf_token %}
     <h1>Login</h1>
     <div class="input__container">
@@ -26,10 +26,13 @@
         {% endif%}
     </div>
     
-
+        <div style="display: grid;">
     <button class="styled__button" type="submit"> Login </button>
-    
-
+    <a href="{% url 'admin' %}">Admin Login</a>
+    </div>
 </form>
+
+
+<a class="styled__button floating" href="{% url 'register' %}">Register</a>
 
 {% endblock content %}

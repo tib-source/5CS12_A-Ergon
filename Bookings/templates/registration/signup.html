@@ -19,20 +19,29 @@
         }
     }
 
+
+    function toggleFields() {
+        let userType = document.getElementById('user_type').value;
+        if (userType === 'student') {
+            document.getElementById('student_fields').style.display = 'block';
+            document.getElementById('staff_fields').style.display = 'none';
+        } else if (userType === 'staff') {
+            document.getElementById('student_fields').style.display = 'none';
+            document.getElementById('staff_fields').style.display = 'block';
+        }
+    }
+
+    window.addEventListener('load', () => {
+
+        toggleFields()
+    })
+
 </script>
 
 <form method="POST" class="auth register">
     {% csrf_token %}
     <section class="title">
         <h1>Create An Account </h1>
-
-        <div class="input__container">
-            <select class="input__field" name="current_course" id="id_current_course">
-                <option value="1">Student</option>
-                <option value="2">Staff</option>
-            </select>
-
-        </div>
 
     </section>
     <section>
@@ -62,9 +71,29 @@
         </div>
 
         <div class="input__container">
+            <div class="input__label">
+                <p>Account Type: </p>
+            </div>
+            <select class="input__field" name="user_type" id="user_type" onchange="toggleFields()">
+                <option value="student">Student</option>
+                <option value="staff">Staff</option>
+            </select>
+
+        </div>
+    </section>
+
+    <section id="student_fields">
+        <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Student Id: </p>
+            </div>
+            <input class="input__field" type="text" name="student_id" maxlength="150"
+                id="id_student">
+        </div>
+
+        <div class="input__container">
             <label for="id_current_course">Current course:</label>
-
-
 
             <select class="input__field" name="current_course" id="id_current_course">
                 <option value="CS101">BSc in Computer Science</option>
@@ -108,8 +137,47 @@
                 <option value="SOC101">BA in Sociology</option>
 
             </select>
+        </div>
+        </section>
+    </section>
+
+    <section id="staff_fields" style="display: none;">
+        <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Staff Id: </p>
+            </div>
+            <input class="input__field" type="text" name="staff_id" maxlength="150"
+                 id="id_staff">
 
         </div>
+
+        <div class="input__container">
+            <label for="id_current_course">Current Department:</label>
+            <select class="input__field" name="department" id="id_current_department">
+                <option value="CS">Computer Science</option>
+                <option value="ENG">English Literature</option>
+                <option value="MATH">Mathematics</option>
+                <option value="CHEM">Chemistry</option>
+                <option value="PHYS">Physics</option>
+                <option value="HIST">History</option>
+                <option value="PSYC">Psychology</option>
+                <option value="BIO">Biology</option>
+                <option value="ART">Fine Arts</option>
+                <option value="ECON">Economics</option>
+                <option value="PHIL">Philosophy</option>
+                <option value="BUS">Buisness Adminstration</option>
+                <option value="EDUC">Education</option>
+                <option value="MED">Medical</option>
+                <option value="LAW">Law</option>
+                <option value="ARCH">Architecture</option>
+                <option value="MUSIC">Music</option>
+                <option value="NURS">Nursing</option>
+                <option value="COMM">Communication Studies</option>
+                <option value="SOC">Sociology</option>
+            </select>
+        </div>
+        </section>
     </section>
     <div class="input__container">
         <div class="input__label">
@@ -135,12 +203,28 @@
                 aria-describedby="id_password2_helptext" id="id_password2">
         </div>
 
-        <div>        <input type="checkbox" onclick="showPassword()"> Show Password </input>
+        <div> <input type="checkbox" onclick="showPassword()"> Show Password </input>
         </div>
     </section>
     <p>Use 8 or more characters with a mix of letters, numbers & symbols</p>
     <button class="styled__button" type="submit"> Register </button>
     <a href="{% url 'login' %}">Log in Instead</a>
+
+    {% if form.errors %}
+    {% for field in form %}
+        {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>{{ error|escape }}</strong>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+    {% endfor %}
+    {% endif %}
+
 </form>
 
 

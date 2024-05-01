@@ -7,7 +7,7 @@ from Bookings.models import Booking, Report, Student, Equipment
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render, redirect
-from .forms import StudentRegisterForm
+from .forms import StudentRegisterForm, StaffRegisterForm
 from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
@@ -48,16 +48,35 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     
 
 # Registration View 
-def student_register(response):
+def register(response):
+    ## Check if the user is submitting information 
     if response.method == "POST":
-        form = StudentRegisterForm(response.POST)
-        if form.is_valid():
-            form.save()
-            return redirect("/home")
+        ## Check if the registration is student or staff 
+        user_type = response.POST.get('user_type')
+        
+        ## Use respective form for validation
+        ## Return register page with errors if invalid
+        if(user_type == "student"):
+            form = StudentRegisterForm(response.POST) 
+            if form.is_valid():
+                form.save()
+                return redirect("/dashboard")
+            else:
+                return render(response, "registration/signup.html", {"form" : form})
+        if(user_type == "staff"):
+            form = StaffRegisterForm(response.POST) 
+            if form.is_valid():
+                form.save()
+                return redirect('/dashboard')
+            else:
+                return render(response, "registration/signup.html", {"form" : form})
     else:
         form = StudentRegisterForm()
 
-    return render(response, "registration/signup.html", {"form":form})
+    return render(response, "registration/signup.html", {"form" : form})
+
+
+
 
 class ReportView(LoginRequiredMixin, TemplateView):
     template_name = 'report/report.html'

@@ -25,14 +25,18 @@
         const bookingButton = document.createElement("Button");
         bookingButton.innerHTML = "Book"
         bookingButton.classList.add("styled__button")
-        bookingButton.setAttribute("data-book", obj["id"])
-        bookingButton.onclick = toggleBookingModal
+        bookingButton.onclick = (() => toggleBookingModal(obj["id"]))
         row.appendChild(bookingButton)
         return row;
     };
 
-    const toggleBookingModal = () =>{ 
-        console.log("helo")
+    const toggleBookingModal = (id) =>{ 
+
+        if(id){ 
+            // Preselect the item from the drop down for the user
+            const dropdown = document.getElementById('bookingDropdown')
+            dropdown.value = id;
+        }
         const modal = document.getElementById('booking-modal')
         modal.style.visibility= modal.style.visibility == "hidden" ? 'visible' : 'hidden';
     }
@@ -143,7 +147,7 @@
             })
         })
 
-       // toggleBookingModal()
+       toggleBookingModal()
     }
 
     window.addEventListener("load", (e) => {
@@ -203,20 +207,44 @@
 
     });
 </script>
-<form action="/api/book" id="booking-modal" style="visibility: visible; z-index: 1;" >
-    {% csrf_token %}
+<form action="/api/book" id="booking-modal" style="visibility: hidden; z-index: 1;" >
+        <div class="input__container">
+            <div class="input__label">
+                <p>Item : </p>
+            </div>
+            <select  class="input__field" name="bookingDropdown" id="bookingDropdown">
 
-    <select  class="input__field" name="bookingDropdown" id="bookingDropdown">
+            </select>
+        </div>
 
-    </select>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>From: </p>
+            </div>        
+            <input type="date" class="input__field" id="fromDate">
+        </div>
 
-    <label for="fromDate">Default Date (Today):</label>
-    <input type="date" id="fromDate" value="" >
+        <div class="input__container">
+            <div class="input__label">
+                <p>Untill: </p>
+            </div>
+            <input type="date" class="input__field" id="untilDate">
+        </div>
+    </section>
 
-    <label for="untilDate">Select Date:</label>
-    <input type="date" id="untilDate">
 
-    <button type="button" onclick="handleBooking()">book</button>
+    <div class="input__container">
+        <div class="input__label">
+            <p>Reason : </p>
+        </div>
+        <input  class="input__field" type="text" name="bookingReason" id="bookingReason" />
+    </div>
+
+    <section class="modal__buttons">
+        <button type="button" class="styled__button" onclick="handleBooking()">Book</button>
+        <button type="button" class="styled__button cancel" onclick="toggleBookingModal()">Cancel</button>
+    </section>
 </form>
 
 <div class="dashboard">

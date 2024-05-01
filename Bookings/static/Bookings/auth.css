@@ -20,16 +20,15 @@ body {
     border: 1px solid var(--gray-light);
     background-color: var(--white);
     border-radius: 1rem;
-    padding: 5rem 3em;
+    padding: 2rem 3em;
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: .5rem;
     overflow: hidden;
 
     h1 {
-        text-align: center;
         text-transform: capitalize;
-
+        margin: 1rem 0;
     }
         
     
@@ -38,11 +37,23 @@ body {
     }        
 
 
+    button{
+        margin: 0.5rem   0;
+    }
 }
 
 
+.login{
+    width: 320px;
+    gap: 1.5rem; 
+    a {
+        padding: 0;
+    }
+}
+
 .register{ 
 
+    
     section{ 
         display: grid;
         gap: 1rem;
@@ -56,14 +67,16 @@ body {
         display: flex;
         justify-content: space-between;
 
-        .input__container {
 
-            .input__field{ 
-                width: 100px;
-            }
-        }
         
 
     }
 
+}
+
+
+.floating{ 
+    position: absolute;
+    top: 3rem;
+    right: 3rem;
 }
