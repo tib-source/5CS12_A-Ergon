@@ -242,6 +242,17 @@
 
 }
 
+#modal_overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black overlay */
+  z-index: 10; /* Ensure the overlay appears above other content */
+  pointer-events: auto; /* Enable pointer events on the overlay */
+}
+
 
 .modal{ 
   position: absolute;
@@ -255,6 +266,7 @@
   padding: 4rem;
   gap: 1rem;
   color: var(--white);
+  z-index: 1200;
   section{ 
     width: 100%;
     display: grid;
@@ -282,6 +294,7 @@
     gap: 1rem;
   }
 }
+
 
 .status {
   font-weight: 700;

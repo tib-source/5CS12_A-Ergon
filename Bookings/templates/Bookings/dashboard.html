@@ -37,14 +37,14 @@
             editButton.innerHTML = "Edit"
             editButton.classList.add("styled__button")
             editButton.classList.add("equipment__edit")
-            editButton.onclick = (() => toggleEditModal(obj["id"]))
+            editButton.onclick = (() => toggleEditModal(obj))
             adminButtonsContainer.appendChild(editButton)
 
             const deleteButton = document.createElement("Button");
             deleteButton.innerHTML = "Delete"
             deleteButton.classList.add("styled__button")
             deleteButton.classList.add("equipment__delete")
-            deleteButton.onclick = (() => toggleDeletemodal(obj))
+            deleteButton.onclick = (() => toggleDeleteModal(obj))
             adminButtonsContainer.appendChild(deleteButton)
 
 
@@ -60,25 +60,64 @@
             const dropdown = document.getElementById('bookingDropdown')
             dropdown.value = id;
         }
-        const modal = document.getElementById('booking-modal')
-        modal.style.visibility = modal.style.visibility == "hidden" ? 'visible' : 'hidden';
+        toggleModal('booking-modal')
     }
 
-    const toggleAddModal = () => { 
-        const modal = document.getElementById('equipment-modal')
+ 
+    const toggleModal = (id) => { 
+        const modal = document.getElementById(id)
         modal.style.visibility = modal.style.visibility == "hidden" ? 'visible' : 'hidden';
+        let overlay = document.getElementById('modal_overlay')
+        overlay.style.display = overlay.style.display == "none" ? "block" : "none" 
     }
 
+    const toggleAddModal = () => {
+        toggleModal('equipment-modal')
+    }
 
-    
-    const toggleDeletemodal = (obj) => {
-        if(obj){
+    const toggleDeleteModal = (obj) => {
+        if (obj) {
 
-            document.getElementById('delete_id').value = obj['id'] 
-            document.getElementById('delete_confirm_text').textContent = `Are you sure you want to delete - ${obj['name']}?` 
+            document.getElementById('delete_id').value = obj['id']
+            document.getElementById('delete_confirm_text').textContent = `Are you sure you want to delete - ${obj['name']}?`
         }
-        const modal = document.getElementById('delete_modal')
-        modal.style.visibility = modal.style.visibility == "hidden" ? 'visible' : 'hidden';
+        toggleModal('delete_modal')
+    }
+
+    const toggleEditModal = (obj) => {
+        const typeChoices = {
+            'PC/Laptop': 'PC',
+            'VR Headset': 'VRH',
+            'Camera/Sensors': 'CS',
+            'PC Peripherals': 'PP',
+            'Furniture': 'Furn',
+            'Tripod': 'Trip',
+            'Other': 'Oth',
+            'VR Controller': 'VRC',
+            'Phones/Tablets': 'PT',
+            'Power/Cable': 'PCBL'
+        };
+
+        const statusChoices = {
+            'Pending': 'Pend',
+            'Available': 'Avail',
+            'Decommisioned': 'Decom',
+            'Unavailable': 'Unavail',
+            'On Loan': 'Loan',
+            'Repairing': 'Repair'
+        };
+
+        if (obj) {
+            document.getElementById("edit_id").value = obj['id']
+            document.getElementById("updateName").value = obj['name']
+            document.getElementById("updateQuantity").value = obj['quantity']
+            document.getElementById("updateType").value = typeChoices[obj['type']]
+            document.getElementById("updateLocation").value = obj['location']
+            document.getElementById("updateStatus").value = statusChoices[obj['status']]
+            document.getElementById("updateComment").value = obj['comment']
+        }
+        toggleModal('edit_modal')
+
     }
 
 
@@ -174,7 +213,7 @@
         let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
 
-        fetch('/api/equipment/delete/', {
+        fetch('/api/equipment/delete', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -185,9 +224,9 @@
             })
         }).then(response => {
 
-                console.log('Equipment Delete request sent successfully');
-                location.reload() 
-            })
+            console.log('Equipment Delete request sent successfully');
+            // location.reload()
+        })
             .catch(error => {
                 // Handle error
                 console.error('Error sending equipment delete request:', error);
@@ -201,7 +240,7 @@
         let untilDate = document.getElementById("untilDate").value;
         let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
 
-        fetch('/api/book/', {
+        fetch('/api/book', {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
@@ -212,17 +251,61 @@
                 from: fromDate,
                 to: untilDate,
             })
-        })            .then(response => {
+        }).then(response => {
 
-                console.log('Equipment Booking request sent successfully');
-                toggleBookingModal();             })
+            console.log('Equipment Booking request sent successfully');
+            toggleBookingModal();
+        })
             .catch(error => {
                 // Handle error
                 console.error('Error sending equipment booking request:', error);
                 // You can display an error message or handle the error in any way you want
-            });    }
+            });
+    }
 
 
+
+    const handleEdit = (e) => {
+        let equipmentId= document.getElementById("edit_id").value;
+        let equipmentName = document.getElementById("updateName").value;
+        let equipmentQuantity = document.getElementById("updateQuantity").value;
+        let equipmentType = document.getElementById("updateType").value;
+        let equipmentLocation = document.getElementById("updateLocation").value;
+        let equipmentStatus = document.getElementById("updateStatus").value;
+        let equipmentComment = document.getElementById("updateComment").value;
+        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+
+        const postData = {
+            id:equipmentId,
+            name: equipmentName,
+            quantity: equipmentQuantity,
+            type: equipmentType,
+            location: equipmentLocation,
+            status: equipmentStatus,
+            comment: equipmentComment
+        }
+
+        console.log(postData)
+        fetch('/api/equipment/update', {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(postData)
+        })
+            .then(response => {
+
+                console.log('Equipment Creation request sent successfully');
+                toggleAddModal(); // Close the modal after successful submission
+                location.reload()
+            })
+            .catch(error => {
+                // Handle error
+                console.error('Error sending equipment creation request:', error);
+            });
+    }
 
     const handleAdd = (e) => {
         let equipmentName = document.getElementById("equipmentName").value;
@@ -235,13 +318,13 @@
 
 
         const postData = {
-                name: equipmentName,
-                quantity: equipmentQuantity,
-                type: equipmentType,
-                location: equipmentLocation,
-                status: equipmentStatus,
-                comment: equipmentComment
-            }
+            name: equipmentName,
+            quantity: equipmentQuantity,
+            type: equipmentType,
+            location: equipmentLocation,
+            status: equipmentStatus,
+            comment: equipmentComment
+        }
 
         console.log(postData)
         fetch('/api/equipment/new', {
@@ -323,17 +406,99 @@
     });
 </script>
 {{ request.user.is_staff|json_script:"user_id" }}
-<div class="modal" id="delete_modal" style="visibility: hidden; z-index: 1;">
+
+
+<div id="modal_overlay" style="display: none;"></div>
+<div class="modal" id="delete_modal" style="visibility: hidden;">
     <h1>Delete Confirmation</h1>
     <p id="delete_confirm_text"></p>
     <input type="number" name="delete_id" id="delete_id" style="display: none;">
     <div class="modal__buttons">
         <button type="button" class="styled__button cancel" onclick="handleDelete()">Yes, Delete</button>
-        <button type="button" class="styled__button " onclick="toggleDeletemodal()">Cancel</button>
+        <button type="button" class="styled__button " onclick="toggleDeleteModal()">Cancel</button>
     </div>
 </div>
 
-<form action="/api/equipment" method="post" id="equipment-modal" class="modal" style="visibility: hidden; z-index: 1;">
+
+
+<form action="/api/equipment/update" method="post" id="edit_modal" class="modal"
+    style="visibility: hidden;">
+
+    <input type="number" name="edit_id" id="edit_id" style="display: none;">
+
+    <h1>Edit Equipment </h1>
+    <div class="input__container">
+        <div class="input__label">
+            <p>Name: </p>
+        </div>
+        <input class="input__field" type="text" name="name" id="updateName" required>
+    </div>
+
+
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Quantity: </p>
+            </div>
+            <input class="input__field" type="number" name="quantity" id="updateQuantity" required>
+        </div>
+        <div class="input__container">
+
+            <div class="input__label">
+                <p>Type: </p>
+            </div>
+            <select id="updateType" name="type" class="input__field" required>
+                <option value="PC">PC/Laptop</option>
+                <option value="VRH">VR Headset</option>
+                <option value="CS">Camera/Sensors</option>
+                <option value="PP">PC Peripherals</option>
+                <option value="Furn">Furniture</option>
+                <option value="Trip">Tripod</option>
+                <option value="Oth">Other</option>
+                <option value="VRC">VR Controller</option>
+                <option value="PT">Phones/Tablets</option>
+                <option value="PCBL">Power/Cable</option>
+            </select>
+        </div>
+
+
+    </section>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Location: </p>
+            </div>
+            <input class="input__field" type="text" name="location" id="updateLocation" required>
+        </div>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Status: </p>
+            </div>
+            <select id="updateStatus" name="status" class="input__field" required>
+                <option value="Avail">Available</option>
+                <option value="Pend">Pending</option>
+                <option value="Decom">Decommisioned</option>
+                <option value="Unavail">Unavailable</option>
+                <option value="Loan">On Loan</option>
+                <option value="Repair">Repairing</option>
+            </select>
+        </div>
+    </section>
+    <div class="input__container">
+        <div class="input__label">
+            <p>Comment: </p>
+        </div>
+        <input class="input__field" type="text" name="comment" id="updateComment">
+    </div>
+
+    <section class="modal__buttons">
+        <button type="button" class="styled__button" onclick="handleEdit()">Update</button>
+        <button type="button" class="styled__button cancel" onclick="toggleEditModal()">Cancel</button>
+    </section>
+</form>
+
+
+<form action="/api/equipment" method="post" id="equipment-modal" class="modal" style="visibility: hidden; ">
     <h1>Add Equipment </h1>
     <div class="input__container">
         <div class="input__label">
@@ -404,7 +569,7 @@
         <button type="button" class="styled__button cancel" onclick="toggleAddModal()">Cancel</button>
     </section>
 </form>
-<form action="/api/book" id="booking-modal" class="modal" style="visibility: hidden; z-index: 1;">
+<form action="/api/book" id="booking-modal" class="modal" style="visibility: hidden;">
     <div class="input__container">
         <div class="input__label">
             <p>Item : </p>
@@ -452,7 +617,8 @@
             <button class="styled__button" id="search_button"> Search </button>
         </section>
         {% if user.is_staff %}
-        <button class="styled__button " id="add_equipment" type="button" onclick="toggleAddModal()"> Add Equipment </button>
+        <button class="styled__button " id="add_equipment" type="button" onclick="toggleAddModal()"> Add Equipment
+        </button>
         {%endif%}
     </form>
     <table id="dashboard_table">

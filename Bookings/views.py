@@ -7,7 +7,7 @@ from django.views.generic import TemplateView
 from Bookings.models import Booking, Report, Student, Equipment
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
-from django.shortcuts import render, redirect
+from django.shortcuts import get_object_or_404, render, redirect
 from .forms import StudentRegisterForm, StaffRegisterForm
 from django.http import JsonResponse
 from django.utils import timezone
@@ -29,7 +29,7 @@ def adminLogin(request):
         user = authenticate(request, username=username, password=password)
         if user is not None and user.is_superuser:  
             login(request, user)
-            return redirect('/Bookings/dashboard')  # Redirect to dashboard after login
+            return redirect('/dashboard')  # Redirect to dashboard after login
         else:
             # Handle invalid login credentials
             return render(request, 'registration/admin_login.html', {'error_message': 'Invalid login'})
@@ -282,6 +282,8 @@ def handleBooking(req):
 
 
 def add_equipment(request):
+    print("meow")
+
     if request.method == 'POST':
         if (not request.user.is_staff):
             return JsonResponse({'success': False, 'message': 'User is not an admin'})
@@ -316,6 +318,7 @@ def add_equipment(request):
         return JsonResponse({'success': False, 'message': 'Only POST requests are allowed'}, status=405)
     
 def delete_equipment(request):
+    print("meow")
     if request.method == "POST":  
         # Check if the user is staff
         if not request.user.is_staff:
@@ -323,6 +326,8 @@ def delete_equipment(request):
         
         data =json.loads(request.body)
         equipment_id = data.get('id')
+        
+        print(data)
 
         # Check if the equipment with the given ID exists
         try:
@@ -335,3 +340,35 @@ def delete_equipment(request):
         
         return JsonResponse({'success': True, 'message': 'Equipment deleted successfully.'})
     return JsonResponse({'success': False, 'message': 'Only POST requests are allowed'}, status=405)
+
+
+
+def update_equipment(request):
+
+    if request.method == 'PUT':
+        if (not request.user.is_staff):
+            return JsonResponse({'success': False, 'message': 'User is not an admin'})
+        # Extract data from the POST request
+        data =json.loads(request.body)
+        
+        equipment_id= data.get('id')
+        
+        equipment = get_object_or_404(Equipment, id=equipment_id)
+    
+        # Update the equipment
+        try:
+            equipment.name = data.get('name')
+            equipment.quantity = data.get('quantity')
+            equipment.type = data.get('type')
+            equipment.location = data.get('location')
+            equipment.status = data.get('status')
+            equipment.comment = data.get('comment')
+                
+            equipment.save()
+            return JsonResponse({'success': True, 'message': 'Equipment updated successfully'})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'success': False, 'message': str(e)}, status=500)
+    else:
+        return JsonResponse({'success': False, 'message': 'Only PUT requests are allowed'}, status=405)
+    
