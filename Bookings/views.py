@@ -16,6 +16,24 @@ from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import tempfile
+from django.contrib.auth import authenticate, login
+from django.shortcuts import render, redirect
+
+
+
+def adminLogin(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None and user.is_superuser:  
+            login(request, user)
+            return redirect('/Bookings/dashboard')  # Redirect to dashboard after login
+        else:
+            # Handle invalid login credentials
+            return render(request, 'registration/admin_login.html', {'error_message': 'Invalid login'})
+    else:
+        return render(request, 'registration/admin_login.html')
 
 
 
