@@ -70,9 +70,15 @@
     </div>
     
 
+        <div style="display: grid;">
     <button class="styled__button" type="submit"> Login </button>
+    <a href="{% url 'login' %}">User Login</a>
+    </div>
     
 
 </form>
+
+<a class="styled__button floating" href="{% url 'register' %}">Register</a>
+
 
 {% endblock content %}
