@@ -1,7 +1,9 @@
+from datetime import datetime
 import json
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
 from django.views.generic import TemplateView
-from Bookings.models import Student, Equipment
+from Bookings.models import Booking, Student, Equipment
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -31,3 +33,41 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['student'] = student
         
         return context
+    
+    
+    
+def handleBooking(req):
+    print(req.method == "POST")
+    if(req.method == "POST"): 
+        # Find equipment 
+        print("meow")
+        try: 
+            request = json.loads(req.body)
+            to_book = Equipment.objects.get(id=request.get('id')) 
+            if(to_book.status == "Avail" and to_book.quantity > 0):
+                
+                request_data = json.loads(req.body)
+                print(request_data)
+                return_date_string = request_data.get('to')
+                return_date_object = datetime.strptime(return_date_string, '%Y-%m-%d').date()
+
+                # Create a new booking
+                new_booking = Booking.objects.create(
+                    return_date = return_date_object,
+                    approved=False, 
+                    returned=False, 
+                    user=req.user,  
+                    admin=None,  
+                    equipment=to_book
+                )
+                new_booking.save()
+                return HttpResponse(json.dumps({"message" : "Booking Succesfull"}), status=200)
+
+            else: 
+                return HttpResponse(json.dumps({"message" : "Equipment is not available"}), status=403)
+        except Equipment.DoesNotExist: 
+                return HttpResponse(json.dumps({"message": "Equipment not found"}), status=404)
+        except Exception as e:
+            print(e)
+            return HttpResponse(json.dumps({"message": "Failed to book:" + str(e)}), status=500)
+    return HttpResponse("Method not allowed", status=405)

@@ -98,9 +98,10 @@ class Equipment(models.Model):
     
     
 class Booking(models.Model):
-    returnDate = models.DateField()
-    approvalStatus = models.BooleanField()
-    returnStatus = models.BooleanField()
+    return_date = models.DateField()
+    approved = models.BooleanField()
+    returned = models.BooleanField()
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    admin = models.ForeignKey(Admin, on_delete = models.CASCADE, related_name="approved_by")
+    admin = models.ForeignKey(Admin, on_delete = models.SET_NULL, related_name="approved_by", null=True)
     equipment = models.ForeignKey(Equipment, on_delete = models.CASCADE)
+    reason = models.TextField(default="")

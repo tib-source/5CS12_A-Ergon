@@ -184,6 +184,16 @@
 }
 
 
+#booking-modal{ 
+  position: absolute;
+  width: 500px;
+  aspect-ratio: 1;
+  background-color: var(--bright);
+  display: grid;
+  justify-content: center;
+  align-items: center;
+}
+
 .status {
   font-weight: 700;
   display: grid;
