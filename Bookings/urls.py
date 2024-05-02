@@ -28,8 +28,8 @@ urlpatterns=[
   path('accounts/adminLogin', admin_login, name='admin' ),
   path('booking_history/', booking_history_view, name='booking_history'),
   path('return-item/<int:booking_id>/', return_item, name='return_item'),
-  path('rebook-item/<int:booking_id>/', rebook_item, name='rebook_item')
+  path('rebook-item/<int:booking_id>/', rebook_item, name='rebook_item'),
+  path('notifications/', NotificationListView.as_view(), name='notifications'),
 ]
-
 
 
