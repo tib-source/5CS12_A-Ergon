@@ -14,9 +14,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
 from django.http import FileResponse
-from docx import Document
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+# from docx import Document
+# from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
 from io import BytesIO
 import tempfile
 from django.contrib.auth import authenticate, login
@@ -50,7 +50,7 @@ def admin_login(request):
         form = AuthenticationForm()
     return render(request, 'registration/admin_login.html', {'form': form})
 
-class UsersView(LoginRequiredMixin, TemplateView):
+class UsersView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'Bookings/users.html'
 
     def get_context_data(self, **kwargs):
@@ -82,6 +82,10 @@ class UsersView(LoginRequiredMixin, TemplateView):
         context['staff_all'] = staff_json
         context['students_all'] = student_json
         return context
+    
+    
+    def test_func(self):
+        return self.request.user.is_staff
 
 
 class DashboardView(LoginRequiredMixin, TemplateView):
@@ -172,8 +176,12 @@ def create_user(response):
     return JsonResponse({'success': False, 'message': 'Invalid Request Type.'})
 
 
-class ReportView(LoginRequiredMixin, TemplateView):
+class ReportView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
     template_name = 'report/report.html'
+
+
+    def test_func(self):
+        return self.request.user.is_staff
 
     def generate_report(self, report_type, time_period):
         print("Report Type Received:", report_type)
@@ -341,7 +349,6 @@ def handleBooking(req):
 
 @staff_member_required
 def add_equipment(request):
-    print("meow")
 
     if request.method == 'POST':
         if (not request.user.is_staff):
@@ -531,13 +538,14 @@ def rebook_item(request, booking_id):
     new_booking.save()
 
     return redirect('booking_history')
+
 class ApprovalListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = ApprovalRequest
     template_name = 'Bookings/approvals.html'
     context_object_name = 'approval_requests'
 
     def test_func(self):
-        return self.request.user.is_superuser
+        return self.request.user.is_staff
 
     def get_queryset(self):
         return ApprovalRequest.objects.filter(approver=self.request.user, status='pending').order_by('-request_date')

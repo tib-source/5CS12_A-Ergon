@@ -1,716 +1,824 @@
 {%extends 'Bookings/base_main.html'%} {% block content %}
-
 {{equipment|json_script:"data"}}
 
 <script>
-
-    /* 
+  /* 
 
     INSPIRED BY THE FOLLOWING ARTICLE : https://webdesign.tutsplus.com/how-to-create-a-sortable-html-table-with-javascript--cms-92993t
     
     */
-    let tableData =
-        JSON.parse(JSON.parse(document.getElementById("data").textContent))
+  let tableData = JSON.parse(
+    JSON.parse(document.getElementById("data").textContent)
+  );
 
-    let tableButtons;
-    let tableContent;
-    let filterStatus;
-    let filterType;
-    let isAdmin;
+  let tableButtons;
+  let tableContent;
+  let filterStatus;
+  let filterType;
+  let isAdmin;
 
-    const typeChoices = {
-            'PC/Laptop': 'PC',
-            'VR Headset': 'VRH',
-            'Camera/Sensors': 'CS',
-            'PC Peripherals': 'PP',
-            'Furniture': 'Furn',
-            'Tripod': 'Trip',
-            'Other': 'Oth',
-            'VR Controller': 'VRC',
-            'Phones/Tablets': 'PT',
-            'Power/Cable': 'PCBL'
-        };
+  const typeChoices = {
+    "PC/Laptop": "PC",
+    "VR Headset": "VRH",
+    "Camera/Sensors": "CS",
+    "PC Peripherals": "PP",
+    Furniture: "Furn",
+    Tripod: "Trip",
+    Other: "Oth",
+    "VR Controller": "VRC",
+    "Phones/Tablets": "PT",
+    "Power/Cable": "PCBL",
+  };
 
-    const statusChoices = {
-            'Pending': 'Pend',
-            'Available': 'Avail',
-            'Decommisioned': 'Decom',
-            'Unavailable': 'Unavail',
-            'On Loan': 'Loan',
-            'Repairing': 'Repair'
-        };
+  const statusChoices = {
+    Pending: "Pend",
+    Available: "Avail",
+    Decommisioned: "Decom",
+    Unavailable: "Unavail",
+    "On Loan": "Loan",
+    Repairing: "Repair",
+  };
 
-    const createRow = (obj) => {
-        const row = document.createElement("tr");
-        const objKeys = ['id', 'name', 'quantity', 'type', 'location', 'status', 'comment']
-        objKeys.map((key) => {
-            populateRow(row, obj[key], key);
-        });
-        // TODO: GET THE BOOKING BUTTON WORKING 
+  const createRow = (obj) => {
+    const row = document.createElement("tr");
+    const objKeys = [
+      "id",
+      "name",
+      "quantity",
+      "type",
+      "location",
+      "status",
+      "comment",
+    ];
+    objKeys.map((key) => {
+      populateRow(row, obj[key], key);
+    });
+    // TODO: GET THE BOOKING BUTTON WORKING
 
-        if (!isAdmin) {
+    if (!isAdmin) {
+      const bookingButton = document.createElement("Button");
+      bookingButton.innerHTML = "Book";
+      bookingButton.classList.add("styled__button");
+      bookingButton.onclick = () => toggleBookingModal(obj["id"]);
 
+      if (obj["status"] != "Available") {
+        bookingButton.classList.add("disabled");
+        bookingButton.disabled = true;
+      }
+      row.appendChild(bookingButton);
+    } else {
+      const adminButtonsContainer = document.createElement("div");
+      adminButtonsContainer.classList.add("equipment__admin");
 
-            const bookingButton = document.createElement("Button");
-            bookingButton.innerHTML = "Book"
-            bookingButton.classList.add("styled__button")
-            bookingButton.onclick = (() => toggleBookingModal(obj["id"]))
+      const editButton = document.createElement("Button");
+      editButton.innerHTML = "Edit";
+      editButton.classList.add("styled__button");
+      editButton.classList.add("equipment__edit");
+      editButton.onclick = () => toggleEditModal(obj);
+      adminButtonsContainer.appendChild(editButton);
 
-            if(obj['status'] != 'Available'){
-                bookingButton.classList.add("disabled")
-                bookingButton.disabled = true;
-            }
-            row.appendChild(bookingButton)
-        } else {
-            const adminButtonsContainer = document.createElement('div')
-            adminButtonsContainer.classList.add("equipment__admin")
+      const deleteButton = document.createElement("Button");
+      deleteButton.innerHTML = "Delete";
+      deleteButton.classList.add("styled__button");
+      deleteButton.classList.add("equipment__delete");
+      deleteButton.onclick = () => toggleDeleteModal(obj);
+      adminButtonsContainer.appendChild(deleteButton);
 
-            const editButton = document.createElement("Button");
-            editButton.innerHTML = "Edit"
-            editButton.classList.add("styled__button")
-            editButton.classList.add("equipment__edit")
-            editButton.onclick = (() => toggleEditModal(obj))
-            adminButtonsContainer.appendChild(editButton)
-
-            const deleteButton = document.createElement("Button");
-            deleteButton.innerHTML = "Delete"
-            deleteButton.classList.add("styled__button")
-            deleteButton.classList.add("equipment__delete")
-            deleteButton.onclick = (() => toggleDeleteModal(obj))
-            adminButtonsContainer.appendChild(deleteButton)
-
-
-            row.appendChild(adminButtonsContainer)
-        }
-
-        return row;
-    };
-
-    const toggleBookingModal = (id) => {
-        if (id) {
-            // Preselect the item from the drop down for the user
-            const dropdown = document.getElementById('bookingDropdown')
-            dropdown.value = id;
-        }
-        toggleModal('booking-modal')
+      row.appendChild(adminButtonsContainer);
     }
 
- 
-    const toggleModal = (id) => { 
-        const modal = document.getElementById(id)
-        modal.style.visibility = modal.style.visibility == "hidden" ? 'visible' : 'hidden';
-        let overlay = document.getElementById('modal_overlay')
-        overlay.style.display = overlay.style.display == "none" ? "block" : "none" 
+    return row;
+  };
+
+  const toggleBookingModal = (id) => {
+    if (id) {
+      // Preselect the item from the drop down for the user
+      const dropdown = document.getElementById("bookingDropdown");
+      dropdown.value = id;
     }
+    toggleModal("booking-modal");
+  };
 
-    const toggleAddModal = () => {
-        toggleModal('equipment-modal')
+  const toggleModal = (id) => {
+    const modal = document.getElementById(id);
+    modal.style.visibility =
+      modal.style.visibility == "hidden" ? "visible" : "hidden";
+    let overlay = document.getElementById("modal_overlay");
+    overlay.style.display = overlay.style.display == "none" ? "block" : "none";
+  };
+
+  const toggleAddModal = () => {
+    toggleModal("equipment-modal");
+  };
+
+  // Function to toggle the delete modal
+  const toggleDeleteModal = (obj) => {
+    // If an object is provided
+    if (obj) {
+      // Populate the delete modal with object data
+      document.getElementById("delete_id").value = obj["id"];
+      document.getElementById(
+        "delete_confirm_text"
+      ).textContent = `Are you sure you want to delete - ${obj["name"]}?`;
     }
+    // Toggle the visibility of the delete modal
+    toggleModal("delete_modal");
+  };
 
-    const toggleDeleteModal = (obj) => {
-        if (obj) {
-
-            document.getElementById('delete_id').value = obj['id']
-            document.getElementById('delete_confirm_text').textContent = `Are you sure you want to delete - ${obj['name']}?`
-        }
-        toggleModal('delete_modal')
+  // Function to toggle the edit modal
+  const toggleEditModal = (obj) => {
+    // If an object is provided
+    if (obj) {
+      // Populate the edit modal with object data
+      document.getElementById("edit_id").value = obj["id"];
+      document.getElementById("updateName").value = obj["name"];
+      document.getElementById("updateQuantity").value = obj["quantity"];
+      document.getElementById("updateType").value = typeChoices[obj["type"]];
+      document.getElementById("updateLocation").value = obj["location"];
+      document.getElementById("updateStatus").value =
+        statusChoices[obj["status"]];
+      document.getElementById("updateComment").value = obj["comment"];
     }
+    // Toggle the visibility of the edit modal
+    toggleModal("edit_modal");
+  };
 
-    const toggleEditModal = (obj) => {
-
-        if (obj) {
-            document.getElementById("edit_id").value = obj['id']
-            document.getElementById("updateName").value = obj['name']
-            document.getElementById("updateQuantity").value = obj['quantity']
-            document.getElementById("updateType").value = typeChoices[obj['type']]
-            document.getElementById("updateLocation").value = obj['location']
-            document.getElementById("updateStatus").value = statusChoices[obj['status']]
-            document.getElementById("updateComment").value = obj['comment']
-        }
-        toggleModal('edit_modal')
-
+  // Function to populate a row in the table
+  const populateRow = (row, item, key = "id") => {
+    const cell = document.createElement("td");
+    // If the key is "status"
+    if (key == "status") {
+      // Add status-related classes and styling
+      cell.classList.add("status");
+      const span = document.createElement("span");
+      span.innerHTML = item;
+      if (item == "On Loan") {
+        span.classList.add("status__loan");
+      } else {
+        span.classList.add(`status__${item.toLowerCase()}`);
+      }
+      item = span.outerHTML;
     }
+    // Set data-attr attribute to the key
+    cell.setAttribute("data-attr", key);
+    // Set the cell content to the item value
+    cell.innerHTML = item;
+    // Append the cell to the row
+    row.appendChild(cell);
+  };
 
-
-    const populateRow = (row, item, key = "id") => {
-        const cell = document.createElement("td");
-        if (key == "status") {
-            cell.classList.add("status")
-            const span = document.createElement('span')
-            span.innerHTML = item
-            if (item == "On Loan") {
-                span.classList.add("status__loan")
-            } else span.classList.add(`status__${item.toLowerCase()}`)
-
-
-
-            item = span.outerHTML
-        }
-        cell.setAttribute("data-attr", key);
-        cell.innerHTML = item;
-        row.appendChild(cell);
-    };
-
-    const getTableContent = (data) => {
-        console.dir(typeof data);
+    // Function to get table content and populate the table
+    const getTableContent = (data) => {        
+        // Iterate over each object in the 'data' array
         data.map((obj) => {
+            // Create a table row for the current object
             const row = createRow(obj);
+            
+            // Append the created row to the table content area
             tableContent.appendChild(row);
         });
     };
-
-
-    const sortRow = (data, row, direction = "asc") => {
-        // Clear out the table first 
-        tableContent.innerHTML = ""
-        // Use the direction to perform sorting
-        const sortedData = direction == 'asc' ?
-            [...data].sort(function (curr, next) {
-                if (curr[row] > next[row]) {
-                    return -1;
-                } else if (curr[row] < next[row]) {
-                    return 1;
-                } else {
-                    return 0;
-                }
-            }) : [...data].sort(function (curr, next) {
-                if (curr[row] > next[row]) {
-                    return 1;
-                } else if (curr[row] < next[row]) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            })
-        getTableContent(sortedData);
-    }
-
-
-    const resetButtons = (event) => {
-        [...tableButtons].map((button) => {
-            if (button !== event.target) {
-                button.removeAttribute('data-dir')
+  const sortRow = (data, row, direction = "asc") => {
+    // Clear out the table first
+    tableContent.innerHTML = "";
+    // Use the direction to perform sorting
+    const sortedData =
+      direction == "asc"
+        ? [...data].sort(function (curr, next) {
+            if (curr[row] > next[row]) {
+              return -1;
+            } else if (curr[row] < next[row]) {
+              return 1;
+            } else {
+              return 0;
             }
-        })
-    }
-
-
-    const populateBookingDropdown = (data) => {
-        const dropdown = document.getElementById('bookingDropdown')
-
-        // clear previous data 
-        dropdown.innerHTML = "";
-        // intiial default 
-        const defaultOption = document.createElement('option')
-        defaultOption.text = "Select Equipment"
-        // Populate with json
-        data.forEach(element => {
-            let optionCurr = document.createElement('option')
-            optionCurr.value = element.id
-            optionCurr.text = element.id + " - " + element.name
-            dropdown.add(optionCurr)
-        });
-
-
-        // Extra functionality 
-        // Set the from date on the form to automatically be today: 
-        let fromDate = document.getElementById("fromDate");
-        fromDate.value = new Date().toISOString().slice(0, 10)
-    }
-
-
-    const handleDelete = (e) => {
-        let deleteId = document.getElementById('delete_id').value
-        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-
-
-        fetch('/api/equipment/delete', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                id: deleteId,
-            })
-        }).then(response => {
-
-            console.log('Equipment Delete request sent successfully');
-            // location.reload()
-        })
-            .catch(error => {
-                // Handle error
-                console.error('Error sending equipment delete request:', error);
-            });
-
-    }
-
-    const handleBooking = (e) => {
-        let selectedEquipmentId = document.getElementById("bookingDropdown").value;
-        let fromDate = document.getElementById("fromDate").value;
-        let untilDate = document.getElementById("untilDate").value;
-        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-
-        fetch('/api/book', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify({
-                id: selectedEquipmentId,
-                from: fromDate,
-                to: untilDate,
-            })
-        }).then(response => {
-
-            console.log('Equipment Booking request sent successfully');
-            toggleBookingModal();
-        })
-            .catch(error => {
-                // Handle error
-                console.error('Error sending equipment booking request:', error);
-                // You can display an error message or handle the error in any way you want
-            });
-    }
-
-
-
-    const handleEdit = (e) => {
-        let equipmentId= document.getElementById("edit_id").value;
-        let equipmentName = document.getElementById("updateName").value;
-        let equipmentQuantity = document.getElementById("updateQuantity").value;
-        let equipmentType = document.getElementById("updateType").value;
-        let equipmentLocation = document.getElementById("updateLocation").value;
-        let equipmentStatus = document.getElementById("updateStatus").value;
-        let equipmentComment = document.getElementById("updateComment").value;
-        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-
-
-        const postData = {
-            id:equipmentId,
-            name: equipmentName,
-            quantity: equipmentQuantity,
-            type: equipmentType,
-            location: equipmentLocation,
-            status: equipmentStatus,
-            comment: equipmentComment
-        }
-
-        console.log(postData)
-        fetch('/api/equipment/update', {
-            method: "PUT",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify(postData)
-        })
-            .then(response => {
-
-                console.log('Equipment Creation request sent successfully');
-                toggleAddModal(); // Close the modal after successful submission
-                location.reload()
-            })
-            .catch(error => {
-                // Handle error
-                console.error('Error sending equipment creation request:', error);
-            });
-    }
-
-    const handleAdd = (e) => {
-        let equipmentName = document.getElementById("equipmentName").value;
-        let equipmentQuantity = document.getElementById("equipmentQuantity").value;
-        let equipmentType = document.getElementById("equipmentType").value;
-        let equipmentLocation = document.getElementById("equipmentLocation").value;
-        let equipmentStatus = document.getElementById("equipmentStatus").value;
-        let equipmentComment = document.getElementById("equipmentComment").value;
-        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-
-
-        const postData = {
-            name: equipmentName,
-            quantity: equipmentQuantity,
-            type: equipmentType,
-            location: equipmentLocation,
-            status: equipmentStatus,
-            comment: equipmentComment
-        }
-
-        console.log(postData)
-        fetch('/api/equipment/new', {
-            method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken
-            },
-            body: JSON.stringify(postData)
-        })
-            .then(response => {
-
-                console.log('Equipment Creation request sent successfully');
-                toggleAddModal(); // Close the modal after successful submission
-                location.reload()
-            })
-            .catch(error => {
-                // Handle error
-                console.error('Error sending equipment creation request:', error);
-            });
-    }
-
-
-    const handleFilter = (event, type) => { 
-
-        event.preventDefault();
-        // Get text from the search Bar 
-        choices = type == 'type' ? typeChoices :  statusChoices;
-        const query = event.target.value
-        
-                    // Clear the table 
-            tableContent.innerHTML = ""
-            // Filter the data using the query 
-            const searchResult = [...tableData].filter((item) => {
-                let result = choices[ item[type]] == query;
-                return result
-
-            })
-            // if search result is empty
-            if (searchResult.length == 0) {
-
-                noResultDiv.innerHTML = `<p> No result for this search </p>`
-                tableContent.appendChild(noResultDiv)
+          })
+        : [...data].sort(function (curr, next) {
+            if (curr[row] > next[row]) {
+              return 1;
+            } else if (curr[row] < next[row]) {
+              return -1;
+            } else {
+              return 0;
             }
+          });
+    getTableContent(sortedData);
+  };
 
-            // Repopulate the table 
-            getTableContent(searchResult)
-    }
-
-
-    window.addEventListener("load", (e) => {
-        filterStatus = document.getElementById("filter__status");
-        filterType = document.getElementById("filter__type");
-        isAdmin = JSON.parse(document.getElementById('user_id').textContent);
-        tableContent = document.getElementById("table_content");
-        tableButtons = document.querySelectorAll('.table__row');
-        searchInput = document.getElementById('search_input')
-        searchButton = document.getElementById("search_button");
-        noResultDiv = document.createElement('div')
-
-
-        // Event listener on the search button so that it can filter the table when it is clicked; 
-        searchButton.addEventListener("click", (event) => {
-
-            event.preventDefault();
-            // Get text from the search Bar 
-            const query = searchInput.value.toLowerCase();
-            // Clear the table 
-            tableContent.innerHTML = ""
-            // Filter the data using the query 
-            const searchResult = [...tableData].filter((item) => {
-                let result = item["name"].toLowerCase().includes(query);
-                return result
-
-            })
-            // if search result is empty
-            if (searchResult.length == 0) {
-
-                noResultDiv.innerHTML = `<p> No result for this search </p>`
-                tableContent.appendChild(noResultDiv)
-            }
-
-            // Repopulate the table 
-            getTableContent(searchResult)
-        });
-
-        // Event listeners on the Table columns so that they can sort the table when clicked 
-        [...tableButtons].map((button) => {
-            button.addEventListener("click", (event) => {
-
-                resetButtons(event);
-
-                if (event.target.getAttribute('data-dir') == 'desc') {
-                    sortRow(tableData, event.target.innerHTML.toLowerCase(), "asc")
-                    event.target.setAttribute('data-dir', 'asc')
-                } else {
-                    sortRow(tableData, event.target.innerHTML.toLowerCase(), "desc")
-                    event.target.setAttribute('data-dir', 'desc')
-
-                }
-
-            })
-        })
-
-
-        
-        filterStatus.addEventListener('change',(e)=> handleFilter(e, 'status'))
-        filterType.addEventListener('change', (e)=> handleFilter(e, 'type'))
-
-
-
-        getTableContent(tableData);
-        populateBookingDropdown(tableData);
-
+  const resetButtons = (event) => {
+    [...tableButtons].map((button) => {
+      if (button !== event.target) {
+        button.removeAttribute("data-dir");
+      }
     });
+  };
+
+  const populateBookingDropdown = (data) => {
+    const dropdown = document.getElementById("bookingDropdown");
+
+    // clear previous data
+    dropdown.innerHTML = "";
+    // intiial default
+    const defaultOption = document.createElement("option");
+    defaultOption.text = "Select Equipment";
+    // Populate with json
+    data.forEach((element) => {
+      let optionCurr = document.createElement("option");
+      optionCurr.value = element.id;
+      optionCurr.text = element.id + " - " + element.name;
+      dropdown.add(optionCurr);
+    });
+
+    // Extra functionality
+    // Set the from date on the form to automatically be today:
+    let fromDate = document.getElementById("fromDate");
+    fromDate.value = new Date().toISOString().slice(0, 10);
+  };
+
+  const handleDelete = (e) => {
+    let deleteId = document.getElementById("delete_id").value;
+    let csrfToken = document.querySelector(
+      'input[name="csrfmiddlewaretoken"]'
+    ).value;
+
+    fetch("/api/equipment/delete", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify({
+        id: deleteId,
+      }),
+    })
+      .then((response) => {
+        console.log("Equipment Delete request sent successfully");
+        // location.reload()
+      })
+      .catch((error) => {
+        // Handle error
+        console.error("Error sending equipment delete request:", error);
+      });
+  };
+
+  const handleBooking = (e) => {
+    let selectedEquipmentId = document.getElementById("bookingDropdown").value;
+    let fromDate = document.getElementById("fromDate").value;
+    let untilDate = document.getElementById("untilDate").value;
+    let csrfToken = document.querySelector(
+      'input[name="csrfmiddlewaretoken"]'
+    ).value;
+
+    fetch("/api/book", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify({
+        id: selectedEquipmentId,
+        from: fromDate,
+        to: untilDate,
+      }),
+    })
+      .then((response) => {
+        console.log("Equipment Booking request sent successfully");
+        toggleBookingModal();
+      })
+      .catch((error) => {
+        // Handle error
+        console.error("Error sending equipment booking request:", error);
+        // You can display an error message or handle the error in any way you want
+      });
+  };
+
+  const handleEdit = (e) => {
+    let equipmentId = document.getElementById("edit_id").value;
+    let equipmentName = document.getElementById("updateName").value;
+    let equipmentQuantity = document.getElementById("updateQuantity").value;
+    let equipmentType = document.getElementById("updateType").value;
+    let equipmentLocation = document.getElementById("updateLocation").value;
+    let equipmentStatus = document.getElementById("updateStatus").value;
+    let equipmentComment = document.getElementById("updateComment").value;
+    let csrfToken = document.querySelector(
+      'input[name="csrfmiddlewaretoken"]'
+    ).value;
+
+    const postData = {
+      id: equipmentId,
+      name: equipmentName,
+      quantity: equipmentQuantity,
+      type: equipmentType,
+      location: equipmentLocation,
+      status: equipmentStatus,
+      comment: equipmentComment,
+    };
+
+    console.log(postData);
+    fetch("/api/equipment/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify(postData),
+    })
+      .then((response) => {
+        console.log("Equipment Creation request sent successfully");
+        toggleAddModal(); // Close the modal after successful submission
+        location.reload();
+      })
+      .catch((error) => {
+        // Handle error
+        console.error("Error sending equipment creation request:", error);
+      });
+  };
+
+  const handleAdd = (e) => {
+    let equipmentName = document.getElementById("equipmentName").value;
+    let equipmentQuantity = document.getElementById("equipmentQuantity").value;
+    let equipmentType = document.getElementById("equipmentType").value;
+    let equipmentLocation = document.getElementById("equipmentLocation").value;
+    let equipmentStatus = document.getElementById("equipmentStatus").value;
+    let equipmentComment = document.getElementById("equipmentComment").value;
+    let csrfToken = document.querySelector(
+      'input[name="csrfmiddlewaretoken"]'
+    ).value;
+
+    const postData = {
+      name: equipmentName,
+      quantity: equipmentQuantity,
+      type: equipmentType,
+      location: equipmentLocation,
+      status: equipmentStatus,
+      comment: equipmentComment,
+    };
+
+    console.log(postData);
+    fetch("/api/equipment/new", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken,
+      },
+      body: JSON.stringify(postData),
+    })
+      .then((response) => {
+        console.log("Equipment Creation request sent successfully");
+        toggleAddModal(); // Close the modal after successful submission
+        location.reload();
+      })
+      .catch((error) => {
+        // Handle error
+        console.error("Error sending equipment creation request:", error);
+      });
+  };
+
+  const handleFilter = (event, type) => {
+    event.preventDefault();
+    // Get text from the search Bar
+    choices = type == "type" ? typeChoices : statusChoices;
+    const query = event.target.value;
+
+    // Clear the table
+    tableContent.innerHTML = "";
+    // Filter the data using the query
+    const searchResult = [...tableData].filter((item) => {
+      let result = choices[item[type]] == query;
+      return result;
+    });
+    // if search result is empty
+    if (searchResult.length == 0) {
+      noResultDiv.innerHTML = `<p> No result for this search </p>`;
+      tableContent.appendChild(noResultDiv);
+    }
+
+    // Repopulate the table
+    getTableContent(searchResult);
+  };
+
+  window.addEventListener("load", (e) => {
+    filterStatus = document.getElementById("filter__status");
+    filterType = document.getElementById("filter__type");
+    isAdmin = JSON.parse(document.getElementById("user_id").textContent);
+    tableContent = document.getElementById("table_content");
+    tableButtons = document.querySelectorAll(".table__row");
+    searchInput = document.getElementById("search_input");
+    searchButton = document.getElementById("search_button");
+    noResultDiv = document.createElement("div");
+
+    // Event listener on the search button so that it can filter the table when it is clicked;
+    searchButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      // Get text from the search Bar
+      const query = searchInput.value.toLowerCase();
+      // Clear the table
+      tableContent.innerHTML = "";
+      // Filter the data using the query
+      const searchResult = [...tableData].filter((item) => {
+        let result = item["name"].toLowerCase().includes(query);
+        return result;
+      });
+      // if search result is empty
+      if (searchResult.length == 0) {
+        noResultDiv.innerHTML = `<p> No result for this search </p>`;
+        tableContent.appendChild(noResultDiv);
+      }
+
+      // Repopulate the table
+      getTableContent(searchResult);
+    });
+
+    // Event listeners on the Table columns so that they can sort the table when clicked
+    [...tableButtons].map((button) => {
+      button.addEventListener("click", (event) => {
+        // Reset all button states
+        resetButtons(event);
+
+        // Check the sorting direction
+        if (event.target.getAttribute("data-dir") == "desc") {
+          // Sort in ascending order if currently descending
+          sortRow(tableData, event.target.innerHTML.toLowerCase(), "asc");
+          event.target.setAttribute("data-dir", "asc");
+        } else {
+          // Sort in descending order if currently ascending
+          sortRow(tableData, event.target.innerHTML.toLowerCase(), "desc");
+          event.target.setAttribute("data-dir", "desc");
+        }
+      });
+    });
+
+    // Event listener for filter by status dropdown
+    filterStatus.addEventListener("change", (e) => handleFilter(e, "status"));
+
+    // Event listener for filter by type dropdown
+    filterType.addEventListener("change", (e) => handleFilter(e, "type"));
+
+    // Function to get table content
+    getTableContent(tableData);
+
+    // Function to populate booking dropdown
+    populateBookingDropdown(tableData);
+  });
 </script>
 {{ request.user.is_staff|json_script:"user_id" }}
+<div id="modal_overlay" style="display: none"></div>
 
-
-<div id="modal_overlay" style="display: none;"></div>
-<div class="modal" id="delete_modal" style="visibility: hidden;">
-    <h1>Delete Confirmation</h1>
-    <p id="delete_confirm_text"></p>
-    <input type="number" name="delete_id" id="delete_id" style="display: none;">
-    <div class="modal__buttons">
-        <button type="button" class="styled__button cancel" onclick="handleDelete()">Yes, Delete</button>
-        <button type="button" class="styled__button " onclick="toggleDeleteModal()">Cancel</button>
-    </div>
+{% if user.is_staff %}
+<div class="modal" id="delete_modal" style="visibility: hidden">
+  <h1>Delete Confirmation</h1>
+  <p id="delete_confirm_text"></p>
+  <input type="number" name="delete_id" id="delete_id" style="display: none" />
+  <div class="modal__buttons">
+    <button
+      type="button"
+      class="styled__button cancel"
+      onclick="handleDelete()"
+    >
+      Yes, Delete
+    </button>
+    <button type="button" class="styled__button" onclick="toggleDeleteModal()">
+      Cancel
+    </button>
+  </div>
 </div>
 
+<form
+  action="/api/equipment/update"
+  method="post"
+  id="edit_modal"
+  class="modal"
+  style="visibility: hidden"
+>
+  <input type="number" name="edit_id" id="edit_id" style="display: none" />
 
-
-<form action="/api/equipment/update" method="post" id="edit_modal" class="modal"
-    style="visibility: hidden;">
-
-    <input type="number" name="edit_id" id="edit_id" style="display: none;">
-
-    <h1>Edit Equipment </h1>
-    <div class="input__container">
-        <div class="input__label">
-            <p>Name: </p>
-        </div>
-        <input class="input__field" type="text" name="name" id="updateName" required>
+  <h1>Edit Equipment</h1>
+  <div class="input__container">
+    <div class="input__label">
+      <p>Name:</p>
     </div>
+    <input
+      class="input__field"
+      type="text"
+      name="name"
+      id="updateName"
+      required
+    />
+  </div>
 
-
-    <section>
-        <div class="input__container">
-            <div class="input__label">
-                <p>Quantity: </p>
-            </div>
-            <input class="input__field" type="number" name="quantity" id="updateQuantity" required>
-        </div>
-        <div class="input__container">
-
-            <div class="input__label">
-                <p>Type: </p>
-            </div>
-            <select id="updateType" name="type" class="input__field" required>
-                <option value="PC">PC/Laptop</option>
-                <option value="VRH">VR Headset</option>
-                <option value="CS">Camera/Sensors</option>
-                <option value="PP">PC Peripherals</option>
-                <option value="Furn">Furniture</option>
-                <option value="Trip">Tripod</option>
-                <option value="Oth">Other</option>
-                <option value="VRC">VR Controller</option>
-                <option value="PT">Phones/Tablets</option>
-                <option value="PCBL">Power/Cable</option>
-            </select>
-        </div>
-
-
-    </section>
-    <section>
-        <div class="input__container">
-            <div class="input__label">
-                <p>Location: </p>
-            </div>
-            <input class="input__field" type="text" name="location" id="updateLocation" required>
-        </div>
-        <div class="input__container">
-            <div class="input__label">
-                <p>Status: </p>
-            </div>
-            <select id="updateStatus" name="status" class="input__field" required>
-                <option value="Avail">Available</option>
-                <option value="Pend">Pending</option>
-                <option value="Decom">Decommisioned</option>
-                <option value="Unavail">Unavailable</option>
-                <option value="Loan">On Loan</option>
-                <option value="Repair">Repairing</option>
-            </select>
-        </div>
-    </section>
+  <section>
     <div class="input__container">
-        <div class="input__label">
-            <p>Comment: </p>
-        </div>
-        <input class="input__field" type="text" name="comment" id="updateComment">
+      <div class="input__label">
+        <p>Quantity:</p>
+      </div>
+      <input
+        class="input__field"
+        type="number"
+        name="quantity"
+        id="updateQuantity"
+        required
+      />
     </div>
+    <div class="input__container">
+      <div class="input__label">
+        <p>Type:</p>
+      </div>
+      <select id="updateType" name="type" class="input__field" required>
+        <option value="PC">PC/Laptop</option>
+        <option value="VRH">VR Headset</option>
+        <option value="CS">Camera/Sensors</option>
+        <option value="PP">PC Peripherals</option>
+        <option value="Furn">Furniture</option>
+        <option value="Trip">Tripod</option>
+        <option value="Oth">Other</option>
+        <option value="VRC">VR Controller</option>
+        <option value="PT">Phones/Tablets</option>
+        <option value="PCBL">Power/Cable</option>
+      </select>
+    </div>
+  </section>
+  <section>
+    <div class="input__container">
+      <div class="input__label">
+        <p>Location:</p>
+      </div>
+      <input
+        class="input__field"
+        type="text"
+        name="location"
+        id="updateLocation"
+        required
+      />
+    </div>
+    <div class="input__container">
+      <div class="input__label">
+        <p>Status:</p>
+      </div>
+      <select id="updateStatus" name="status" class="input__field" required>
+        <option value="Avail">Available</option>
+        <option value="Pend">Pending</option>
+        <option value="Decom">Decommisioned</option>
+        <option value="Unavail">Unavailable</option>
+        <option value="Loan">On Loan</option>
+        <option value="Repair">Repairing</option>
+      </select>
+    </div>
+  </section>
+  <div class="input__container">
+    <div class="input__label">
+      <p>Comment:</p>
+    </div>
+    <input class="input__field" type="text" name="comment" id="updateComment" />
+  </div>
 
-    <section class="modal__buttons">
-        <button type="button" class="styled__button" onclick="handleEdit()">Update</button>
-        <button type="button" class="styled__button cancel" onclick="toggleEditModal()">Cancel</button>
-    </section>
+  <section class="modal__buttons">
+    <button type="button" class="styled__button" onclick="handleEdit()">
+      Update
+    </button>
+    <button
+      type="button"
+      class="styled__button cancel"
+      onclick="toggleEditModal()"
+    >
+      Cancel
+    </button>
+  </section>
+</form>
+
+<form
+  action="/api/equipment"
+  method="post"
+  id="equipment-modal"
+  class="modal"
+  style="visibility: hidden"
+>
+  <h1>Add Equipment</h1>
+  <div class="input__container">
+    <div class="input__label">
+      <p>Name:</p>
+    </div>
+    <input
+      class="input__field"
+      type="text"
+      name="name"
+      id="equipmentName"
+      required
+    />
+  </div>
+
+  <section>
+    <div class="input__container">
+      <div class="input__label">
+        <p>Quantity:</p>
+      </div>
+      <input
+        class="input__field"
+        type="number"
+        name="quantity"
+        id="equipmentQuantity"
+        required
+      />
+    </div>
+    <div class="input__container">
+      <div class="input__label">
+        <p>Type:</p>
+      </div>
+      <select id="equipmentType" name="type" class="input__field" required>
+        <option value="PC">PC/Laptop</option>
+        <option value="VRH">VR Headset</option>
+        <option value="CS">Camera/Sensors</option>
+        <option value="PP">PC Peripherals</option>
+        <option value="Furn">Furniture</option>
+        <option value="Trip">Tripod</option>
+        <option value="Oth">Other</option>
+        <option value="VRC">VR Controller</option>
+        <option value="PT">Phones/Tablets</option>
+        <option value="PCBL">Power/Cable</option>
+      </select>
+    </div>
+  </section>
+  <section>
+    <div class="input__container">
+      <div class="input__label">
+        <p>Location:</p>
+      </div>
+      <input
+        class="input__field"
+        type="text"
+        name="location"
+        id="equipmentLocation"
+        required
+      />
+    </div>
+    <div class="input__container">
+      <div class="input__label">
+        <p>Status:</p>
+      </div>
+      <select id="equipmentStatus" name="status" class="input__field" required>
+        <option value="Avail">Available</option>
+        <option value="Pend">Pending</option>
+        <option value="Decom">Decommisioned</option>
+        <option value="Unavail">Unavailable</option>
+        <option value="Loan">On Loan</option>
+        <option value="Repair">Repairing</option>
+      </select>
+    </div>
+  </section>
+  <div class="input__container">
+    <div class="input__label">
+      <p>Comment:</p>
+    </div>
+    <input
+      class="input__field"
+      type="text"
+      name="comment"
+      id="equipmentComment"
+    />
+  </div>
+
+  <section class="modal__buttons">
+    <button type="button" class="styled__button" onclick="handleAdd()">
+      Add
+    </button>
+    <button
+      type="button"
+      class="styled__button cancel"
+      onclick="toggleAddModal()"
+    >
+      Cancel
+    </button>
+  </section>
 </form>
 
 
-<form action="/api/equipment" method="post" id="equipment-modal" class="modal" style="visibility: hidden; ">
-    <h1>Add Equipment </h1>
+{% endif %}
+<form
+  action="/api/book"
+  id="booking-modal"
+  class="modal"
+  style="visibility: hidden"
+>
+  <div class="input__container">
+    <div class="input__label">
+      <p>Item :</p>
+    </div>
+    <select
+      class="input__field"
+      name="bookingDropdown"
+      id="bookingDropdown"
+    ></select>
+  </div>
+
+  <section>
     <div class="input__container">
-        <div class="input__label">
-            <p>Name: </p>
-        </div>
-        <input class="input__field" type="text" name="name" id="equipmentName" required>
+      <div class="input__label">
+        <p>From:</p>
+      </div>
+      <input type="date" class="input__field" id="fromDate" />
     </div>
 
-
-    <section>
-        <div class="input__container">
-            <div class="input__label">
-                <p>Quantity: </p>
-            </div>
-            <input class="input__field" type="number" name="quantity" id="equipmentQuantity" required>
-        </div>
-        <div class="input__container">
-
-            <div class="input__label">
-                <p>Type: </p>
-            </div>
-            <select id="equipmentType" name="type" class="input__field" required>
-                <option value="PC">PC/Laptop</option>
-                <option value="VRH">VR Headset</option>
-                <option value="CS">Camera/Sensors</option>
-                <option value="PP">PC Peripherals</option>
-                <option value="Furn">Furniture</option>
-                <option value="Trip">Tripod</option>
-                <option value="Oth">Other</option>
-                <option value="VRC">VR Controller</option>
-                <option value="PT">Phones/Tablets</option>
-                <option value="PCBL">Power/Cable</option>
-            </select>
-        </div>
-
-
-    </section>
-    <section>
-        <div class="input__container">
-            <div class="input__label">
-                <p>Location: </p>
-            </div>
-            <input class="input__field" type="text" name="location" id="equipmentLocation" required>
-        </div>
-        <div class="input__container">
-            <div class="input__label">
-                <p>Status: </p>
-            </div>
-            <select id="equipmentStatus" name="status" class="input__field" required>
-                <option value="Avail">Available</option>
-                <option value="Pend">Pending</option>
-                <option value="Decom">Decommisioned</option>
-                <option value="Unavail">Unavailable</option>
-                <option value="Loan">On Loan</option>
-                <option value="Repair">Repairing</option>
-            </select>
-        </div>
-    </section>
     <div class="input__container">
-        <div class="input__label">
-            <p>Comment: </p>
-        </div>
-        <input class="input__field" type="text" name="comment" id="equipmentComment">
+      <div class="input__label">
+        <p>Untill:</p>
+      </div>
+      <input type="date" class="input__field" id="untilDate" />
     </div>
+  </section>
 
-    <section class="modal__buttons">
-        <button type="button" class="styled__button" onclick="handleAdd()">Add</button>
-        <button type="button" class="styled__button cancel" onclick="toggleAddModal()">Cancel</button>
-    </section>
-</form>
-<form action="/api/book" id="booking-modal" class="modal" style="visibility: hidden;">
-    <div class="input__container">
-        <div class="input__label">
-            <p>Item : </p>
-        </div>
-        <select class="input__field" name="bookingDropdown" id="bookingDropdown">
-
-        </select>
+  <div class="input__container">
+    <div class="input__label">
+      <p>Reason :</p>
     </div>
+    <input
+      class="input__field"
+      type="text"
+      name="bookingReason"
+      id="bookingReason"
+    />
+  </div>
 
-    <section>
-        <div class="input__container">
-            <div class="input__label">
-                <p>From: </p>
-            </div>
-            <input type="date" class="input__field" id="fromDate">
-        </div>
-
-        <div class="input__container">
-            <div class="input__label">
-                <p>Untill: </p>
-            </div>
-            <input type="date" class="input__field" id="untilDate">
-        </div>
-    </section>
-
-
-    <div class="input__container">
-        <div class="input__label">
-            <p>Reason : </p>
-        </div>
-        <input class="input__field" type="text" name="bookingReason" id="bookingReason" />
-    </div>
-
-    <section class="modal__buttons">
-        <button type="button" class="styled__button" onclick="handleBooking()">Book</button>
-        <button type="button" class="styled__button cancel" onclick="toggleBookingModal()">Cancel</button>
-    </section>
+  <section class="modal__buttons">
+    <button type="button" class="styled__button" onclick="handleBooking()">
+      Book
+    </button>
+    <button
+      type="button"
+      class="styled__button cancel"
+      onclick="toggleBookingModal()"
+    >
+      Cancel
+    </button>
+  </section>
 </form>
 
 <div class="dashboard">
-    <h1>Equipment List</h1>
-    <form class="equipment__filter">
-        <section class="equipment__filter__input">
-        <section class="input__container search">
-            <input class="input__field" type="text" name="searchInput" autofocus="" maxlength="150" id="search_input">
-            <button class="styled__button" id="search_button"> Search </button>
-        </section>
-            <div class="input__container">
-                <div class="input__label">
-                    <p>Filter: </p>
-                </div>
-                <select name="status" id="filter__status" required>
-                    <option value="Avail">Available</option>
-                    <option value="Pend">Pending</option>
-                    <option value="Decom">Decommisioned</option>
-                    <option value="Unavail">Unavailable</option>
-                    <option value="Loan">On Loan</option>
-                    <option value="Repair">Repairing</option>
-                </select>
+  <h1>Equipment List</h1>
+  <form class="equipment__filter">
+    <section class="equipment__filter__input">
+      <section class="input__container search">
+        <input
+          class="input__field"
+          type="text"
+          name="searchInput"
+          autofocus=""
+          maxlength="150"
+          id="search_input"
+        />
+        <button class="styled__button" id="search_button">Search</button>
+      </section>
+      <div class="input__container">
+        <div class="input__label">
+          <p>Filter:</p>
+        </div>
+        <select name="status" id="filter__status" required>
+          <option value="Avail">Available</option>
+          <option value="Pend">Pending</option>
+          <option value="Decom">Decommisioned</option>
+          <option value="Unavail">Unavailable</option>
+          <option value="Loan">On Loan</option>
+          <option value="Repair">Repairing</option>
+        </select>
 
-                <select name="type" id="filter__type" required>
-                    <option value="PC">PC/Laptop</option>
-                    <option value="VRH">VR Headset</option>
-                    <option value="CS">Camera/Sensors</option>
-                    <option value="PP">PC Peripherals</option>
-                    <option value="Furn">Furniture</option>
-                    <option value="Trip">Tripod</option>
-                    <option value="Oth">Other</option>
-                    <option value="VRC">VR Controller</option>
-                    <option value="PT">Phones/Tablets</option>
-                    <option value="PCBL">Power/Cable</option>
-                </select>
-            </div>    
-        </section>
-        {% if user.is_staff %}
-        <button class="styled__button " id="add_equipment" type="button" onclick="toggleAddModal()"> Add Equipment
-        </button>
-        {%endif%}
-    </form>
-    <table id="dashboard_table">
-        <thead>
-            <tr>
-                <th><button class="table__row">Id</button></th>
-                <th><button class="table__row">Name</button></th>
-                <th><button class="table__row">Quantity</button></th>
-                <th><button class="table__row">Type</button></th>
-                <th><button class="table__row">Location</button></th>
-                <th><button class="table__row">Status</button></th>
-                <th><button class="table__row">Comment</button></th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody id="table_content"></tbody>
-    </table>
+        <select name="type" id="filter__type" required>
+          <option value="PC">PC/Laptop</option>
+          <option value="VRH">VR Headset</option>
+          <option value="CS">Camera/Sensors</option>
+          <option value="PP">PC Peripherals</option>
+          <option value="Furn">Furniture</option>
+          <option value="Trip">Tripod</option>
+          <option value="Oth">Other</option>
+          <option value="VRC">VR Controller</option>
+          <option value="PT">Phones/Tablets</option>
+          <option value="PCBL">Power/Cable</option>
+        </select>
+      </div>
+    </section>
+    {% if user.is_staff %}
+    <button
+      class="styled__button"
+      id="add_equipment"
+      type="button"
+      onclick="toggleAddModal()"
+    >
+      Add Equipment
+    </button>
+    {%endif%}
+  </form>
+  <table id="dashboard_table">
+    <thead>
+      <tr>
+        <th><button class="table__row">Id</button></th>
+        <th><button class="table__row">Name</button></th>
+        <th><button class="table__row">Quantity</button></th>
+        <th><button class="table__row">Type</button></th>
+        <th><button class="table__row">Location</button></th>
+        <th><button class="table__row">Status</button></th>
+        <th><button class="table__row">Comment</button></th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="table_content"></tbody>
+  </table>
 </div>
 
 {%endblock content %}
