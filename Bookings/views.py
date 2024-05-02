@@ -27,7 +27,8 @@ from .forms import UserForm, UserProfileForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import Notification
-
+from django.shortcuts import render
+from .models import ApprovalRequest
 
 def admin_login(request):
     if request.method == 'POST':
