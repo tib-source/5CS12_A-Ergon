@@ -15,8 +15,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import FileResponse
 # from docx import Document
-# from reportlab.lib.pagesizes import letter
-# from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from io import BytesIO
 import tempfile
 from django.contrib.auth import authenticate, login
@@ -521,7 +521,7 @@ def rebook_item(request, booking_id):
     # Create a new booking with the same details as the previous one
     new_booking = Booking.objects.create(
         return_date = new_return_date,
-        approved=False, 
+        approved=booking.approved, 
         returned=False, 
         user=booking.user,  
         admin=None,  
