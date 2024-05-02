@@ -1,6 +1,9 @@
 from django.urls import include, path
 from Bookings.views import *
 from django.views.generic.base import TemplateView  # new
+from django.urls import path
+from .views import account_view
+
 
 frontend_patterns = [ 
     path('', TemplateView.as_view(template_name='Bookings/landing.html')),
@@ -32,6 +35,9 @@ urlpatterns=[
   path('notifications/', NotificationListView.as_view(), name='notifications'),
   path('approvals/', ApprovalListView.as_view(), name='approvals'),
   path('approvals/update/<int:pk>/', UpdateApprovalRequest.as_view(), name='update_approval'),
+  path('account/', account_view, name='account_view'),
+]
+
 ]
 
 
