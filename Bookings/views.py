@@ -540,4 +540,12 @@ class UpdateApprovalRequest(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
     def test_func(self):
         obj = self.get_object()
         return obj.approver == self.request.user
+
+class NotificationListView(ListView):
+    model = Notification
+    template_name = 'notifications.html'
+    context_object_name = 'notifications'
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user).order_by('-created_at')
 ]
