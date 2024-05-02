@@ -1,0 +1,70 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background: #f4f4f4;
+}
+
+.container {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sidebar {
+    width: 250px;
+    background: #2c3e50;
+    padding: 20px;
+    color: white;
+}
+
+.main-content {
+    flex-grow: 1;
+    background: white;
+    padding: 20px;
+}
+
+.sidebar a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    padding: 10px;
+    margin-top: 5px;
+}
+
+.sidebar a:hover {
+    background: #34495e;
+}
+
+.notification {
+    border-left: 5px solid transparent; /* default, will be overridden */
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #ecf0f1;
+    font-size: 14px;
+}
+
+.notification .date {
+    font-size: 12px;
+    color: #7f8c8d;
+    float: right;
+}
+
+.notification.success {
+    border-color: #2ecc71; /* green */
+}
+
+.notification.fail {
+    border-color: #e74c3c; /* red */
+}
+
+.notification.warning {
+    border-color: #f39c12; /* orange */
+}
+
+.notification.error {
+    border-color: #c0392b; /* dark red */
+}
+
+.notification.reminder {
+    border-color: #3498db; /* blue */
+}
