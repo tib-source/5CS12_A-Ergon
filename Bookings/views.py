@@ -533,7 +533,7 @@ def rebook_item(request, booking_id):
     return redirect('booking_history')
 class ApprovalListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
     model = ApprovalRequest
-    template_name = 'approvals.html'
+    template_name = 'Bookings/approvals.html'
     context_object_name = 'approval_requests'
 
     def test_func(self):
