@@ -1,0 +1,51 @@
+{% extends "base_main.html" %}
+
+{% block content %}
+<div class="account-page">
+    <div class="sidebar">
+        <div class="profile-info">
+            <img src="{% static 'images/profile_pic.png' %}" alt="Profile Picture">
+            <p>Tibebe Demissie</p>
+        </div>
+        <nav class="navigation-links">
+            <a href="{% url 'dashboard' %}">Dashboard</a>
+            <a href="{% url 'history' %}">History</a>
+            <a href="{% url 'notifications' %}">Notifications</a>
+            <a href="{% url 'account' %}" class="active">Account</a>
+        </nav>
+        <form action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" class="logout-btn">Log Out</button>
+        </form>
+    </div>
+    <div class="main-content">
+        <h1>Account Information</h1>
+        <div class="upload-section">
+            <img src="{% static 'images/upload_icon.png' %}" alt="Upload">
+            <button>Upload</button>
+        </div>
+        <form action="{% url 'update_account' %}" method="post">
+            {% csrf_token %}
+            <label for="first-name">First Name</label>
+            <input id="first-name" name="first_name" type="text" value="Tibebe">
+            
+            <label for="last-name">Last Name</label>
+            <input id="last-name" name="last_name" type="text" value="Demissie">
+            
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" value="w1234567@my.westminster.ac.uk">
+            
+            <label for="course">Current Course</label>
+            <select id="course" name="course">
+                <option value="computer_science" selected>Computer Science</option>
+                <!-- Add more options as needed -->
+            </select>
+            
+            <label for="student-id">Student ID</label>
+            <input id="student-id" name="student_id" type="text" value="12345678">
+            
+            <button type="submit" class="update-btn">Update Account</button>
+        </form>
+    </div>
+</div>
+{% endblock %}
