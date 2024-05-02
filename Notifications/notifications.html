@@ -1,19 +1,24 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
-  <h2>Notifications</h2>
-  <ul>
-    {% for notification in notifications %}
-      <li>
-        <strong>{{ notification.title }}</strong> - {{ notification.message }}
-        <br>
-        Received on: {{ notification.created_at }}
-        {% if not notification.read %}
-          <a href="{% url 'mark_as_read' notification.id %}">Mark as read</a>
-        {% endif %}
-      </li>
-    {% empty %}
-      <li>No notifications found.</li>
-    {% endfor %}
-  </ul>
+<div class="container">
+    <div class="sidebar">
+        <h3>Tibebe Demissie</h3>
+        <a href="{% url 'dashboard' %}">Dashboard</a>
+        <a href="{% url 'history' %}">History</a>
+        <a href="{% url 'notifications' %}">Notifications</a>
+        <a href="{% url 'account' %}">Account</a>
+        <a href="{% url 'logout' %}">Log Out</a>
+    </div>
+    <div class="main-content">
+        <h2>Notifications</h2>
+        {% for notification in notifications %}
+        <div class="notification {{ notification.status|lower }}">
+            {{ notification.message }}
+            <span class="date">{{ notification.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}
+
