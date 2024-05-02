@@ -134,7 +134,6 @@ def register(response):
 
 @staff_member_required
 def create_user(response):
-    print(response.method)
     ## Check if the user is submitting information 
     if response.method == "POST":
         ## Check if the registration is student or staff 
@@ -148,7 +147,9 @@ def create_user(response):
                 form.save()
                 return JsonResponse({'success': True, 'message': 'User created successfully.'})
             else:
-                return JsonResponse({'success': False, 'message': 'Invalid form.'})
+                print(form.errors)
+                ##return JsonResponse({'success': False, 'message': 'Invalid form.'})
+            print(form)
         if(user_type == "staff"):
             form = StaffRegisterForm(response) 
             if form.is_valid():
@@ -455,6 +456,7 @@ def update_user(request):
             # Retrieve the user to be deleted
             if (user_type == "staff"): 
                 user = Staff.objects.get(id=user_id)
+                user.username= data.get('username')
                 user.first_name = data.get('first_name')
                 user.last_name = data.get('last_name')
                 user.staff_id = data.get('staff_id')
@@ -466,10 +468,11 @@ def update_user(request):
 
             else: 
                 user = Student.objects.get(id=user_id)
+                user.username= data.get('username')
                 user.first_name = data.get('first_name')
                 user.last_name = data.get('last_name')
-                user.staff_id = data.get('student_id')
-                user.department = data.get('current_course')
+                user.student_id= data.get('student_id')
+                user.current_course = data.get('current_course')
                 user.email = data.get('email')
                 user.save()
                 return JsonResponse({'success': True, 'message': 'User updated successfully.'})            

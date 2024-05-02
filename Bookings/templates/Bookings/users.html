@@ -88,23 +88,32 @@
 
     const toggleEditModal = (obj, staff) => {
         if (obj) {
+
+            if(staff){
             document.getElementById("update_first_name").value = obj['first_name']
             document.getElementById("update_last_name").value = obj['last_name']
             document.getElementById("update_email").value = obj['email']
             document.getElementById("update_username").value = obj['username']
-            if(staff){
-
             document.getElementById("update_department").value = obj['department']
             document.getElementById("update_id").value = obj['id']
             document.getElementById("update_staff_id").value = obj['staff_id']
             document.getElementById("update_role").checked = obj['is_staff']
             }else{
-            document.getElementById("update_current_course").value = obj['current_course']
-            document.getElementById("update_student_id").value = obj['student_id']
-            document.getElementById("update_role").checked = obj['is_staff']
+            document.getElementById("student_update_id").value = obj['id']
+            document.getElementById("student_update_first_name").value = obj['first_name']
+            document.getElementById("student_update_last_name").value = obj['last_name']
+            document.getElementById("student_update_email").value = obj['email']
+            document.getElementById("student_update_username").value = obj['username']
+            document.getElementById("student_update_current_course").value =  obj['current_course']
+            document.getElementById("student_update_student_id").value = obj['student_id']
             }
         }
-        toggleModal('edit_modal')
+
+        if(staff){
+            toggleModal('edit_modal')
+        }else{
+            toggleModal('student_edit_modal')
+        }
 
     }
 
@@ -177,6 +186,7 @@
 
 
 
+
     const handleDelete = (e) => {
         let deleteId = document.getElementById('delete_id').value
         let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
@@ -243,7 +253,52 @@
             .then(response => {
 
                 console.log('Equipment Creation request sent successfully');
-                toggleStaffAddModal(); // Close the modal after successful submission
+                 // Close the modal after successful submission
+                location.reload()
+            })
+            .catch(error => {
+                // Handle error
+                console.error('Error sending equipment creation request:', error);
+            });
+    }
+
+    const handleStudentEdit = (e) => {
+        const id = document.getElementById('student_update_id').value;
+        const firstName = document.getElementById('student_update_first_name').value;
+        const lastName = document.getElementById('student_update_last_name').value;
+        const username = document.getElementById('student_update_username').value;
+        const current_course = document.getElementById('student_update_current_course').value;
+        const student_id = document.getElementById('student_update_student_id').value;
+        const email = document.getElementById('student_update_email').value;
+        // const password1 = document.getElementById('update_password1').value;
+        // const password2 = document.getElementById('update_password2').value;
+
+        let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+
+        const postData = {
+        first_name: firstName,
+        last_name: lastName,
+        username,
+        current_course,
+        student_id,
+        email,
+        user_type: "student",
+        id
+    }
+
+        console.log(postData)
+        fetch('/api/user/update', {
+            method: "PUT",
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify(postData)
+        })
+            .then(response => {
+
+                console.log('Equipment Creation request sent successfully');
                 location.reload()
             })
             .catch(error => {
@@ -309,6 +364,61 @@
 }
 
 
+
+function handleStudentAdd() {
+    // Get input values
+    const first_name = document.getElementById('student_first_name').value;
+    const last_name = document.getElementById('student_last_name').value;
+    const username = document.getElementById('student_username').value;
+    const current_course = document.getElementById('student_current_course').value;
+    const student_id = document.getElementById('add_student_id').value;
+    const email = document.getElementById('student_email').value;
+    const password1 = document.getElementById('student_password1').value;
+    const password2 = document.getElementById('student_password2').value;
+    let csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
+
+    // Validate passwords
+    if (password1 !== password2) {
+        console.error('Passwords do not match.');
+        return;
+    }
+
+    // Prepare form data
+    const postData = {
+        first_name,
+        last_name,
+        username,
+        current_course,
+        student_id, 
+        email,
+        password1,
+        password2,
+        user_type: "student"
+    }
+
+    // Send POST request to server
+    fetch('/api/user/new', {
+        headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+        method: 'POST',
+        body: JSON.stringify(postData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Refresh page or perform other actions on success
+            location.reload();
+        } else {
+            // Display error message or handle errors
+            console.error('Error:', data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
 
 
     window.addEventListener("load", (e) => {
@@ -487,6 +597,87 @@
     <input type="text" id="update_id" value="default" style="display: none;">
     <section class="modal__buttons">
         <button type="button" class="styled__button" onclick="handleStaffEdit()">Update</button>
+        <button type="button" class="styled__button cancel" onclick="toggleEditModal(false, true)">Cancel</button>
+    </section>
+</form>
+
+
+<form action="/api/user/update" method="post" id="student_edit_modal" class="modal" style="visibility: hidden;">
+    <input type="text" id="student_update_id" value="default" style="display: none;">
+
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>First Name</p>
+            </div>
+            <input type="text" class="input__field" name="first_name" maxlength="150" id="student_update_first_name">
+
+        </div>
+
+        <div class="input__container">
+            <div class="input__label">
+                <p>Last Name</p>
+            </div>
+            <input type="text" class="input__field" name="last_name" maxlength="150" id="student_update_last_name">
+        </div>
+    </section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>User Name</p>
+            </div>
+            <input class="input__field" type="text" name="username" required id="student_update_username">
+        </div>
+
+       
+
+
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Student Id: </p>
+            </div>
+            <input class="input__field" type="text" name="staff_id" maxlength="150" id="student_update_student_id">
+
+        </div>
+
+        <div class="input__container">
+            <label for="id_current_course">Current Department:</label>
+            <select class="input__field" name="current_course" id="student_update_current_course">
+                <option value="CS">Computer Science</option>
+                <option value="ENG">English Literature</option>
+                <option value="MATH">Mathematics</option>
+                <option value="CHEM">Chemistry</option>
+                <option value="PHYS">Physics</option>
+                <option value="HIST">History</option>
+                <option value="PSYC">Psychology</option>
+                <option value="BIO">Biology</option>
+                <option value="ART">Fine Arts</option>
+                <option value="ECON">Economics</option>
+                <option value="PHIL">Philosophy</option>
+                <option value="BUS">Buisness Adminstration</option>
+                <option value="EDUC">Education</option>
+                <option value="MED">Medical</option>
+                <option value="LAW">Law</option>
+                <option value="ARCH">Architecture</option>
+                <option value="MUSIC">Music</option>
+                <option value="NURS">Nursing</option>
+                <option value="COMM">Communication Studies</option>
+                <option value="SOC">Sociology</option>
+            </select>
+        </div>
+
+
+    </section>
+    <div class="input__container">
+        <div class="input__label">
+            <p>Email</p>
+        </div>
+        <input type="email" class="input__field" name="email" maxlength="320" required="" id="student_update_email">
+
+    </div>
+    <input type="number" name="user_type" value="staff" style="display: none;">
+    <section class="modal__buttons">
+        <button type="button" class="styled__button" onclick="handleStudentEdit()">Update</button>
         <button type="button" class="styled__button cancel" onclick="toggleEditModal()">Cancel</button>
     </section>
 </form>
@@ -598,6 +789,106 @@
         <button type="button" class="styled__button cancel" onclick="toggleStaffAddModal()">Cancel</button>
     </section>
 </form>
+
+<form action="/api/user/new" method="post" id="new_student_modal" class="modal" style="visibility: hidden; ">
+    <h1>Create new Staff </h1>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>First Name</p>
+            </div>
+            <input type="text" class="input__field" name="first_name" maxlength="150" id="student_first_name">
+
+        </div>
+
+        <div class="input__container">
+            <div class="input__label">
+                <p>Last Name</p>
+            </div>
+            <input type="text" class="input__field" name="last_name" maxlength="150" id="student_last_name">
+        </div>
+    </section>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>User Name</p>
+            </div>
+            <input class="input__field" type="text" name="username" autofocus="" autocapitalize="none"
+                autocomplete="username" maxlength="150" required id="student_username">
+        </div>
+
+        <div class="input__container">
+            <label for="student_current_course">Current Course:</label>
+            <select class="input__field" name="current_course" id="student_current_course">
+                <option value="CS101">BSc in Computer Science</option>
+                <option value="ENG201">BA in English Literature</option>
+                <option value="MATH301">BSc in Mathematics</option>
+                <option value="CHEM101">BSc in Chemistry</option>
+                <option value="PHYS202">BSc in Physics</option>
+                <option value="HIST102">BA in History</option>
+                <option value="PSYC301">BSc in Psychology</option>
+                <option value="BIO101">BSc in Biology</option>
+                <option value="ART205">BFA in Fine Arts</option>
+                <option value="ECON202">BSc in Economics</option>
+                <option value="PHIL101">BA in Philosophy</option>
+                <option value="BUS301">BBA</option>
+                <option value="EDUC202">Bachelor of Education</option>
+                <option value="MED101">MBBS</option>
+                <option value="LAW201">LLB</option>
+                <option value="ARCH301">BArch</option>
+                <option value="MUSIC202">BMus</option>
+                <option value="NURS101">BSN</option>
+                <option value="COMM301">BA in Communication Studies</option>
+                <option value="SOC101">BA in Sociology</option>
+            </select>
+        </div>
+
+    </section>
+
+
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Student Id: </p>
+            </div>
+            <input class="input__field" type="text" name="student_id" maxlength="150" id="add_student_id">
+
+        </div>
+
+
+
+    </section>
+    <div class="input__container">
+        <div class="input__label">
+            <p>Email</p>
+        </div>
+        <input type="email" class="input__field" name="email" maxlength="320" required="" id="student_email">
+
+    </div>
+    <section>
+        <div class="input__container">
+            <div class="input__label">
+                <p>Password</p>
+            </div>
+            <input type="text" class="input__field" name="password1" id="student_password1">
+        </div>
+
+        <div class="input__container">
+            <div class="input__label">
+                <p>Confirm Password</p>
+            </div>
+            <input type="text" class="input__field" name="password2" required id="student_password2">
+        </div>
+
+        <input type="number" name="user_type" value="staff" style="display: none;">
+
+    </section>
+    <section class="modal__buttons">
+        <button type="button" class="styled__button" onclick="handleStudentAdd()">Create</button>
+        <button type="button" class="styled__button cancel" onclick="toggleStudentAddModal()">Cancel</button>
+    </section>
+</form>
+
 
 
 <div class="dashboard">

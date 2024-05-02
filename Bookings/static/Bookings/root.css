@@ -76,7 +76,7 @@
     display: grid;
     padding: 3rem ;
     border-radius: 1rem;
-    box-shadow: 1rem 1rem var(--bright);
+    box-shadow: .5rem .51rem var(--bright);
     margin-bottom: 3rem;
     border: 2px solid var(--primary-bg);
   }
@@ -183,6 +183,19 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    .equipment__filter__input{
+      display: flex;
+      gap: 1rem;
+
+      .input__label{
+        display: flex;
+        align-items: center;
+      }
+      select{
+        margin-left:0.5rem ;
+      }
+    }
 
     .styled__button{ 
       color: var(--white);

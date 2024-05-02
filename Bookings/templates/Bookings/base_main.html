@@ -16,12 +16,19 @@
         </script>
 
     <div class="navigation">
-        {% if user.profile_pic %}
+        {% if user.staff.profile_pic %}
             <div class=" navigation__profile">
-                <img src="{{ user.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
+                <img src="{{ user.staff.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
                 {{user.get_full_name}}
             </div>
+        {% elif user.student.profile_pic %}
+
+        <div class=" navigation__profile">
+            <img src="{{ user.student.profile_pic.url }}" class="navigation__pic" alt="Profile Picture">
+            {{user.get_full_name}}
+        </div>
         {% else %}
+
             <div class=" navigation__profile">
                 <img src="/media/default.jpg" class="navigation__pic" alt="Profile Picture">
                 Tibebe Demissie

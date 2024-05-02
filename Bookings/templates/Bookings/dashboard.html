@@ -14,7 +14,32 @@
 
     let tableButtons;
     let tableContent;
+    let filterStatus;
+    let filterType;
     let isAdmin;
+
+    const typeChoices = {
+            'PC/Laptop': 'PC',
+            'VR Headset': 'VRH',
+            'Camera/Sensors': 'CS',
+            'PC Peripherals': 'PP',
+            'Furniture': 'Furn',
+            'Tripod': 'Trip',
+            'Other': 'Oth',
+            'VR Controller': 'VRC',
+            'Phones/Tablets': 'PT',
+            'Power/Cable': 'PCBL'
+        };
+
+    const statusChoices = {
+            'Pending': 'Pend',
+            'Available': 'Avail',
+            'Decommisioned': 'Decom',
+            'Unavailable': 'Unavail',
+            'On Loan': 'Loan',
+            'Repairing': 'Repair'
+        };
+
     const createRow = (obj) => {
         const row = document.createElement("tr");
         const objKeys = ['id', 'name', 'quantity', 'type', 'location', 'status', 'comment']
@@ -92,27 +117,6 @@
     }
 
     const toggleEditModal = (obj) => {
-        const typeChoices = {
-            'PC/Laptop': 'PC',
-            'VR Headset': 'VRH',
-            'Camera/Sensors': 'CS',
-            'PC Peripherals': 'PP',
-            'Furniture': 'Furn',
-            'Tripod': 'Trip',
-            'Other': 'Oth',
-            'VR Controller': 'VRC',
-            'Phones/Tablets': 'PT',
-            'Power/Cable': 'PCBL'
-        };
-
-        const statusChoices = {
-            'Pending': 'Pend',
-            'Available': 'Avail',
-            'Decommisioned': 'Decom',
-            'Unavailable': 'Unavail',
-            'On Loan': 'Loan',
-            'Repairing': 'Repair'
-        };
 
         if (obj) {
             document.getElementById("edit_id").value = obj['id']
@@ -355,13 +359,43 @@
     }
 
 
+    const handleFilter = (event, type) => { 
+
+        event.preventDefault();
+        // Get text from the search Bar 
+        choices = type == 'type' ? typeChoices :  statusChoices;
+        const query = event.target.value
+        
+                    // Clear the table 
+            tableContent.innerHTML = ""
+            // Filter the data using the query 
+            const searchResult = [...tableData].filter((item) => {
+                let result = choices[ item[type]] == query;
+                return result
+
+            })
+            // if search result is empty
+            if (searchResult.length == 0) {
+
+                noResultDiv.innerHTML = `<p> No result for this search </p>`
+                tableContent.appendChild(noResultDiv)
+            }
+
+            // Repopulate the table 
+            getTableContent(searchResult)
+    }
+
+
     window.addEventListener("load", (e) => {
+        filterStatus = document.getElementById("filter__status");
+        filterType = document.getElementById("filter__type");
         isAdmin = JSON.parse(document.getElementById('user_id').textContent);
         tableContent = document.getElementById("table_content");
         tableButtons = document.querySelectorAll('.table__row');
         searchInput = document.getElementById('search_input')
         searchButton = document.getElementById("search_button");
         noResultDiv = document.createElement('div')
+
 
         // Event listener on the search button so that it can filter the table when it is clicked; 
         searchButton.addEventListener("click", (event) => {
@@ -405,6 +439,12 @@
 
             })
         })
+
+
+        
+        filterStatus.addEventListener('change',(e)=> handleFilter(e, 'status'))
+        filterType.addEventListener('change', (e)=> handleFilter(e, 'type'))
+
 
 
         getTableContent(tableData);
@@ -619,9 +659,37 @@
 <div class="dashboard">
     <h1>Equipment List</h1>
     <form class="equipment__filter">
+        <section class="equipment__filter__input">
         <section class="input__container search">
             <input class="input__field" type="text" name="searchInput" autofocus="" maxlength="150" id="search_input">
             <button class="styled__button" id="search_button"> Search </button>
+        </section>
+            <div class="input__container">
+                <div class="input__label">
+                    <p>Filter: </p>
+                </div>
+                <select name="status" id="filter__status" required>
+                    <option value="Avail">Available</option>
+                    <option value="Pend">Pending</option>
+                    <option value="Decom">Decommisioned</option>
+                    <option value="Unavail">Unavailable</option>
+                    <option value="Loan">On Loan</option>
+                    <option value="Repair">Repairing</option>
+                </select>
+
+                <select name="type" id="filter__type" required>
+                    <option value="PC">PC/Laptop</option>
+                    <option value="VRH">VR Headset</option>
+                    <option value="CS">Camera/Sensors</option>
+                    <option value="PP">PC Peripherals</option>
+                    <option value="Furn">Furniture</option>
+                    <option value="Trip">Tripod</option>
+                    <option value="Oth">Other</option>
+                    <option value="VRC">VR Controller</option>
+                    <option value="PT">Phones/Tablets</option>
+                    <option value="PCBL">Power/Cable</option>
+                </select>
+            </div>    
         </section>
         {% if user.is_staff %}
         <button class="styled__button " id="add_equipment" type="button" onclick="toggleAddModal()"> Add Equipment
