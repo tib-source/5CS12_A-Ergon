@@ -14,6 +14,7 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import FileResponse
 # from docx import Document
+from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from io import BytesIO
 import tempfile
@@ -163,7 +164,7 @@ class ReportView(LoginRequiredMixin, TemplateView):
     template_name = 'report/report.html'
 
     def generate_report(self, report_type, time_period):
-        # Calculate the start date based on the time period
+        print("Report Type Received:", report_type)
         if time_period == 'last2weeks':
             start_date = timezone.now() - timedelta(days=14)
         elif time_period == 'last1month':
@@ -177,48 +178,44 @@ class ReportView(LoginRequiredMixin, TemplateView):
         elif time_period == 'last2years':
             start_date = timezone.now() - timedelta(days=730)
         else:
-            # Default to last 1 month if time period is not recognized
             start_date = timezone.now() - timedelta(days=30)
 
-        # Query equipment data based on the start date
-        equipment_queryset = Equipment.objects.filter(last_audit__gte=start_date)
-        
-        if not equipment_queryset.exists():
-            return "No data available for this time period."
-
-        # Convert queryset to a list of dictionaries
-        serialized_data = list(equipment_queryset.values())
-
-        # Convert choice field values to their readable representations
-        for obj in serialized_data:
-            obj['type'] = dict(Equipment.type_choices).get(obj['type'])
-            obj['status'] = dict(Equipment.status_choices).get(obj['status'])
-
-        #Generate report content based on report type
         if report_type == 'equipment':
-            report_content = serialized_data
-        else:
-            report_content = "Report type not supported"
+            equipment_queryset = Equipment.objects.filter(last_audit__gte=start_date)
+            if not equipment_queryset.exists():
+                return "No equipment data available for this time period."
+            equipment_serialized_data = list(equipment_queryset.values())
+            for obj in equipment_serialized_data:
+                obj['type'] = dict(Equipment.type_choices).get(obj['type'])
+                obj['status'] = dict(Equipment.status_choices).get(obj['status'])
+            return equipment_serialized_data
 
-        return report_content
+        else:
+            report_type == 'booking'
+            print("Generating booking report...")
+            approved_bookings = Booking.objects.filter(from_date__gte=start_date)
+            if not approved_bookings.exists():
+                return "No bookings made within the time period specified."
+            booking_serialized_data = list(approved_bookings.values())
+            return booking_serialized_data
 
     def generate_pdf_report(self, report_data):
-        if isinstance(report_data, str) and report_data.startswith("No data available"):
-            # Generate PDF with message indicating no data available
+        if isinstance(report_data, str):  # Check if report_data is a string error message
             buffer = BytesIO()
-            p = canvas.Canvas(buffer)
-            p.drawString(100, 750, report_data)  # Display the no data available message
+            p = canvas.Canvas(buffer, pagesize=letter)
+            p.drawString(100, 750, report_data)  # Display the error message
             p.save()
             pdf_content = buffer.getvalue()
             buffer.close()
             return pdf_content
 
-        # Otherwise, generate PDF with the report data
         buffer = BytesIO()
-        p = canvas.Canvas(buffer)
+        p = canvas.Canvas(buffer, pagesize=letter)
         x = 100
         y = 750
         max_line_width = 75
+        page_height = letter[1]
+        max_lines_per_page = int((page_height - y) / 15)  # Calculate maximum lines that can fit on a page
 
         for entry in report_data:
             formatted_entry = ', '.join([f"{key}: {value if key != 'comment' or value else 'no comment'}" for key, value in entry.items()])
@@ -228,6 +225,11 @@ class ReportView(LoginRequiredMixin, TemplateView):
                 p.drawString(100, y, segment)
                 y -= 15
 
+            # Check if reached end of page, if yes, create a new page
+                if y <= 50:
+                    p.showPage()
+                    y = page_height - 50  # Reset y coordinate for the new page
+
             y -= 15
 
         p.save()
@@ -235,42 +237,32 @@ class ReportView(LoginRequiredMixin, TemplateView):
         buffer.close()
         return pdf_content
 
-    # def generate_doc_report(self, report_data):
-    #     if isinstance(report_data, str) and report_data.startswith("No data available"):
-    #         # Generate DOCX with message indicating no data available
-    #         doc = Document()
-    #         doc.add_paragraph(report_data)
-    #         temp_file = tempfile.NamedTemporaryFile(delete=False)
-    #         doc.save(temp_file)
-    #         with open(temp_file.name, 'rb') as f:
-    #             doc_content = f.read()
-    #         return doc_content
+    def generate_doc_report(self, report_data):
+        if isinstance(report_data, str):  # Check if report_data is a string error message
+            doc = Document()
+            doc.add_paragraph(report_data)
+        else:
+            doc = Document()
+            for entry in report_data:
+                formatted_entry = ', '.join([f"{key}: {value if key != 'comment' or value else 'no comment'}" for key, value in entry.items()])
+                doc.add_paragraph(formatted_entry)
+                doc.add_paragraph()  # Add an empty paragraph for extra line spacing
 
-    #     # Otherwise, generate DOCX with the report data
-    #     doc = Document()
-    #     for entry in report_data:
-    #         formatted_entry = ', '.join([f"{key}: {value if key != 'comment' or value else 'no comment'}" for key, value in entry.items()])
-    #         doc.add_paragraph(formatted_entry)
-    #         doc.add_paragraph()  # Add an empty paragraph for extra line spacing
+        temp_file = tempfile.NamedTemporaryFile(delete=False)
+        doc.save(temp_file)
+        with open(temp_file.name, 'rb') as f:
+            doc_content = f.read()
 
-    #     temp_file = tempfile.NamedTemporaryFile(delete=False)
-    #     doc.save(temp_file)
-    #     with open(temp_file.name, 'rb') as f:
-    #         doc_content = f.read()
+        return doc_content
 
-    #     return doc_content
-    
     def post(self, request):
-      # Retrieve form data
         report_type = request.POST.get('report_type')
         time_period = request.POST.get('time_period')
         format_type = request.POST.get('format_type')
 
         try:
-            # Generate report content
             report_data = self.generate_report(report_type, time_period)
 
-            # Generate report based on format type
             if format_type == 'pdf':
                 report_content = self.generate_pdf_report(report_data)
                 content_type = 'application/pdf'
@@ -282,7 +274,6 @@ class ReportView(LoginRequiredMixin, TemplateView):
             else:
                 raise ValueError("Invalid format type. Must be 'pdf' or 'doc'.")
 
-            # Save report information to the database
             user = request.user
             report = Report.objects.create(
                 user=user,
@@ -291,12 +282,12 @@ class ReportView(LoginRequiredMixin, TemplateView):
                 format_type=format_type
             )
 
-            # Prepare file response to download
             filename = f"report_{report.id}.{file_extension}"
             response = FileResponse(BytesIO(report_content), content_type=content_type)
             response['Content-Disposition'] = f'attachment; filename="{filename}"'
 
             return response
+
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
     
