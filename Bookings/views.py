@@ -477,4 +477,52 @@ def update_user(request):
             return JsonResponse({'success': False, 'message': 'User not found.'})
     else:
         return JsonResponse({'success': False, 'message': 'Only POST requests are allowed for deletion.'}, status=405)
-    
+
+
+def booking_history_view(request):
+    # Retrieve current bookings for the logged-in user
+    current_bookings = Booking.objects.filter(user=request.user, returned=False)
+
+    # Retrieve previous bookings (already returned) for the logged-in user
+    previous_bookings = Booking.objects.filter(user=request.user, returned=True)
+
+    context = {
+        'current_bookings': current_bookings,
+        'previous_bookings': previous_bookings
+    }
+
+    return render(request, 'Bookings/booking_history.html', context)
+
+def return_item(request, booking_id):
+    # Retrieve the booking object
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    # Update the booking details
+    booking.returned = True
+    booking.return_date = timezone.now()
+    booking.status = 'Returned'
+    booking.save()
+
+    return redirect('booking_history')
+
+def rebook_item(request, booking_id):
+    # Retrieve the booking object
+    booking = get_object_or_404(Booking, id=booking_id)
+
+    # Calculate the new from date and return date
+    new_from_date = timezone.now()
+    new_return_date = new_from_date + timedelta(days=14)
+
+    # Create a new booking with the same details as the previous one
+    new_booking = Booking.objects.create(
+        return_date = new_return_date,
+        approved=False, 
+        returned=False, 
+        user=booking.user,  
+        admin=None,  
+        equipment=booking.equipment
+    )
+
+    new_booking.save()
+
+    return redirect('booking_history')
