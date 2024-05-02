@@ -25,6 +25,9 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render, redirect
 from .forms import UserForm, UserProfileForm
 from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+from .models import Notification
+
 
 def admin_login(request):
     if request.method == 'POST':
