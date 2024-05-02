@@ -25,7 +25,10 @@ urlpatterns=[
   path('api/', include(backend_patterns)),
   path('accounts/', include("django.contrib.auth.urls")),
   path('register/', register, name="register"),
-  path('accounts/adminLogin', admin_login, name='admin' )
+  path('accounts/adminLogin', admin_login, name='admin' ),
+  path('booking_history/', booking_history_view, name='booking_history'),
+  path('return-item/<int:booking_id>/', return_item, name='return_item'),
+  path('rebook-item/<int:booking_id>/', rebook_item, name='rebook_item')
 ]
 
 
