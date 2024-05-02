@@ -520,3 +520,7 @@ def rebook_item(request, booking_id):
     new_booking.save()
 
     return redirect('booking_history')
+
+urlpatterns = [
+    path('notifications/', NotificationListView.as_view(), name='notifications'),
+]
