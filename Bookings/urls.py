@@ -30,6 +30,9 @@ urlpatterns=[
   path('return-item/<int:booking_id>/', return_item, name='return_item'),
   path('rebook-item/<int:booking_id>/', rebook_item, name='rebook_item'),
   path('notifications/', NotificationListView.as_view(), name='notifications'),
+  path('approvals/', ApprovalListView.as_view(), name='approvals'),
+  path('approvals/update/<int:pk>/', UpdateApprovalRequest.as_view(), name='update_approval'),
 ]
+
 
 
