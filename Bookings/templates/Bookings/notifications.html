@@ -1,0 +1,16 @@
+{% extends 'Bookings/base_main.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <div class="main-content">
+        <h2>Notifications</h2>
+        {% for notification in notifications %}
+        <div class="notification {{ notification.status|lower }}">
+            {{ notification.message }}
+            <span class="date">{{ notification.created_at|date:"Y-m-d H:i" }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+

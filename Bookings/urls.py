@@ -35,10 +35,6 @@ urlpatterns=[
   path('notifications/', NotificationListView.as_view(), name='notifications'),
   path('approvals/', ApprovalListView.as_view(), name='approvals'),
   path('approvals/update/<int:pk>/', UpdateApprovalRequest.as_view(), name='update_approval'),
-  path('account/', account_view, name='account_view'),
+  path('profile/', account_view, name='account_view'),
 ]
-
-]
-
-
 

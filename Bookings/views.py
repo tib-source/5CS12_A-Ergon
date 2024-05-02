@@ -3,6 +3,7 @@ import json
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView
 from Bookings.models import Booking, Report, Staff, Student, Equipment
 from django.contrib.auth.models import User
@@ -14,8 +15,8 @@ from django.utils import timezone
 from datetime import timedelta
 from django.http import FileResponse
 # from docx import Document
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
+# from reportlab.lib.pagesizes import letter
+# from reportlab.pdfgen import canvas
 from io import BytesIO
 import tempfile
 from django.contrib.auth import authenticate, login
@@ -29,6 +30,9 @@ from django.shortcuts import render
 from .models import Notification
 from django.shortcuts import render
 from .models import ApprovalRequest
+from django.contrib.auth.mixins import UserPassesTestMixin
+from django.views.generic import ListView,UpdateView
+
 
 def admin_login(request):
     if request.method == 'POST':
@@ -550,7 +554,7 @@ class UpdateApprovalRequest(LoginRequiredMixin, UserPassesTestMixin, UpdateView)
 
 class NotificationListView(ListView):
     model = Notification
-    template_name = 'notifications.html'
+    template_name = 'Bookings/notifications.html'
     context_object_name = 'notifications'
 
     def get_queryset(self):
@@ -562,19 +566,14 @@ class NotificationListView(ListView):
 def account_view(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
-        profile_form = UserProfileForm(request.POST, instance=request.user.userprofile)
-        if user_form.is_valid() and profile_form.is_valid():
+        if user_form.is_valid():
             user_form.save()
-            profile_form.save()
             return redirect('account_view')
     else:
         user_form = UserForm(instance=request.user)
-        profile_form = UserProfileForm(instance=request.user.userprofile)
 
     context = {
         'user_form': user_form,
-        'profile_form': profile_form
     }
-    return render(request, 'account/account_info.html', context)
+    return render(request, 'Bookings/account.html', context)
 
-]
