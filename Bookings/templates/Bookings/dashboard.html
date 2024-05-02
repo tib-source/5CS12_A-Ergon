@@ -24,10 +24,17 @@
         // TODO: GET THE BOOKING BUTTON WORKING 
 
         if (!isAdmin) {
+
+
             const bookingButton = document.createElement("Button");
             bookingButton.innerHTML = "Book"
             bookingButton.classList.add("styled__button")
             bookingButton.onclick = (() => toggleBookingModal(obj["id"]))
+
+            if(obj['status'] != 'Available'){
+                bookingButton.classList.add("disabled")
+                bookingButton.disabled = true;
+            }
             row.appendChild(bookingButton)
         } else {
             const adminButtonsContainer = document.createElement('div')

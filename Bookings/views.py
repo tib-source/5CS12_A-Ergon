@@ -4,7 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.views.generic import TemplateView
-from Bookings.models import Booking, Report, Student, Equipment
+from Bookings.models import Booking, Report, Staff, Student, Equipment
 from django.contrib.auth.models import User
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import get_object_or_404, render, redirect
@@ -20,6 +20,7 @@ import tempfile
 from django.contrib.auth import authenticate, login
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.admin.views.decorators import staff_member_required
 
 def admin_login(request):
     if request.method == 'POST':
@@ -37,6 +38,39 @@ def admin_login(request):
         form = AuthenticationForm()
     return render(request, 'registration/admin_login.html', {'form': form})
 
+class UsersView(LoginRequiredMixin, TemplateView):
+    template_name = 'Bookings/users.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = None
+        if(self.request.user.is_staff): 
+            user = self.request.user.staff if hasattr(self.request.user, "staff") else self.request.user
+        else:
+            user = self.request.user.student
+            
+        # Get all User objects from the database
+        student_queryset = Student.objects.all()
+        staff_queryset = Staff.objects.all()
+
+        # Convert queryset to a list of dictionaries
+        serialized_student= list(student_queryset.values())
+        serialized_staff= list(staff_queryset.values())
+
+        # # Convert choice field values to their human-readable representations
+        # for obj in serialized_data:
+        #     obj['type'] = dict(Equipment.type_choices).get(obj['type'])
+        #     obj['status'] = dict(Equipment.status_choices).get(obj['status'])
+
+        # Serialize the data to JSON
+        student_json = json.dumps(serialized_student, cls=DjangoJSONEncoder)
+        staff_json = json.dumps(serialized_staff, cls=DjangoJSONEncoder)
+
+        # Add data into context object
+        context['staff_all'] = staff_json
+        context['students_all'] = student_json
+        return context
+
 
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'Bookings/dashboard.html'
@@ -44,7 +78,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = None
-        if(self.request.user.is_staff): 
+        if(self.request.user): 
             user = self.request.user.staff if hasattr(self.request.user, "staff") else self.request.user
         else:
             user = self.request.user.student
@@ -98,8 +132,31 @@ def register(response):
     return render(response, "registration/signup.html", {"form" : form})
 
 
-
-
+@staff_member_required
+def create_user(response):
+    print(response.method)
+    ## Check if the user is submitting information 
+    if response.method == "POST":
+        ## Check if the registration is student or staff 
+        response = json.loads(response.body)
+        user_type = response.get('user_type')
+        ## Use respective form for validation
+        ## Return register page with errors if invalid 
+        if(user_type == "student"):
+            form = StudentRegisterForm(response) 
+            if form.is_valid():
+                form.save()
+                return JsonResponse({'success': True, 'message': 'User created successfully.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Invalid form.'})
+        if(user_type == "staff"):
+            form = StaffRegisterForm(response) 
+            if form.is_valid():
+                form.save()
+                return JsonResponse({'success': True, 'message': 'User created successfully.'})
+            else:
+                return JsonResponse({'success': False, 'message': 'Invalid form.'})
+    return JsonResponse({'success': False, 'message': 'Invalid Request Type.'})
 
 
 class ReportView(LoginRequiredMixin, TemplateView):
@@ -244,11 +301,10 @@ class ReportView(LoginRequiredMixin, TemplateView):
             return JsonResponse({'error': str(e)}, status=500)
     
     
-    
+@login_required
 def handleBooking(req):
     if(req.method == "POST"): 
         # Find equipment 
-        print("meow")
         try: 
             request = json.loads(req.body)
             to_book = Equipment.objects.get(id=request.get('id')) 
@@ -280,7 +336,7 @@ def handleBooking(req):
             return JsonResponse({'success': False,"message": "Failed to book:" + str(e)}, status=500)
     return JsonResponse({'success': False, "message" : "Method not allowed"}, status=405)
 
-
+@staff_member_required
 def add_equipment(request):
     print("meow")
 
@@ -316,7 +372,7 @@ def add_equipment(request):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
     else:
         return JsonResponse({'success': False, 'message': 'Only POST requests are allowed'}, status=405)
-    
+@staff_member_required
 def delete_equipment(request):
     if request.method == "POST":  
         # Check if the user is staff
@@ -341,7 +397,7 @@ def delete_equipment(request):
     return JsonResponse({'success': False, 'message': 'Only POST requests are allowed'}, status=405)
 
 
-
+@staff_member_required
 def update_equipment(request):
 
     if request.method == 'PUT':
@@ -370,4 +426,55 @@ def update_equipment(request):
             return JsonResponse({'success': False, 'message': str(e)}, status=500)
     else:
         return JsonResponse({'success': False, 'message': 'Only PUT requests are allowed'}, status=405)
+    
+    
+    
+@staff_member_required
+def delete_user(request): 
+    if request.method == 'POST':
+        try:
+            user_id = json.loads(request.body).get('id')
+            # Retrieve the user to be deleted
+            user = User.objects.get(pk=user_id)
+            # Delete the user
+            user.delete()
+            return JsonResponse({'success': True, 'message': 'User deleted successfully.'})
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'User not found.'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Only POST requests are allowed for deletion.'}, status=405)
+    
+@staff_member_required 
+def update_user(request): 
+    if request.method == 'PUT':
+        try:
+            
+            data = json.loads(request.body)
+            user_id = data.get('id')
+            user_type = data.get('user_type')
+            # Retrieve the user to be deleted
+            if (user_type == "staff"): 
+                user = Staff.objects.get(id=user_id)
+                user.first_name = data.get('first_name')
+                user.last_name = data.get('last_name')
+                user.staff_id = data.get('staff_id')
+                user.department = data.get('department')
+                user.email = data.get('email')
+                user.is_staff = data.get('is_staff')
+                user.save()
+                return JsonResponse({'success': True, 'message': 'User updated successfully.'})
+
+            else: 
+                user = Student.objects.get(id=user_id)
+                user.first_name = data.get('first_name')
+                user.last_name = data.get('last_name')
+                user.staff_id = data.get('student_id')
+                user.department = data.get('current_course')
+                user.email = data.get('email')
+                user.save()
+                return JsonResponse({'success': True, 'message': 'User updated successfully.'})            
+        except User.DoesNotExist:
+            return JsonResponse({'success': False, 'message': 'User not found.'})
+    else:
+        return JsonResponse({'success': False, 'message': 'Only POST requests are allowed for deletion.'}, status=405)
     

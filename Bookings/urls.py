@@ -1,10 +1,11 @@
 from django.urls import include, path
-from Bookings.views import DashboardView, admin_login, handleBooking, register, ReportView , add_equipment, delete_equipment, update_equipment
+from Bookings.views import *
 from django.views.generic.base import TemplateView  # new
 
 frontend_patterns = [ 
     path('', TemplateView.as_view(template_name='Bookings/landing.html')),
     path('dashboard', DashboardView.as_view()),
+    path('users', UsersView.as_view()),
     path('report', ReportView.as_view(), name = 'report')
 ]
 
@@ -14,6 +15,9 @@ backend_patterns = [
     path('equipment/new', add_equipment),
     path('equipment/delete', delete_equipment),
     path('equipment/update', update_equipment),
+    path('user/new', create_user),
+    path('user/delete', delete_user),
+    path('user/update', update_user),
 ]
 
 urlpatterns=[
