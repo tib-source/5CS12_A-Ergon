@@ -14,9 +14,9 @@ from django.http import JsonResponse
 from django.utils import timezone
 from datetime import timedelta
 from django.http import FileResponse
-# from docx import Document
-# from reportlab.lib.pagesizes import letter
-# from reportlab.pdfgen import canvas
+from docx import Document
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from io import BytesIO
 import tempfile
 from django.contrib.auth import authenticate, login
