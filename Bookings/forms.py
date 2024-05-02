@@ -2,6 +2,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from Bookings.models import Student, Staff
+from django import forms
+from django.contrib.auth.models import User
+from .models import UserProfile
 
 class StudentRegisterForm(UserCreationForm):
 
@@ -25,3 +28,15 @@ class StaffRegisterForm(UserCreationForm):
     class Meta:
         model = Staff
         fields = ["first_name", "last_name","username", "staff_id","department", "email", "password1", "password2"]
+
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'email')
+
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = UserProfile
+        fields = ('student_id', 'course')
