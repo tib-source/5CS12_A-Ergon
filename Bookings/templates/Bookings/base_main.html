@@ -29,7 +29,9 @@
         {% endif %}
         <div class="navigation__pages">
             <a href="/dashboard">Dashboard</a>
-            <a href="/bookings">Bookings</a>     
+            {% if user.is_staff == 0 %} 
+            <a href="/booking_history">Bookings</a>  
+            {% endif %}   
             <a href="/notifications">Notifications</a> 
             {% if user.is_staff %} 
             <a href="/report">Report</a>     
